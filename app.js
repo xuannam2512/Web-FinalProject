@@ -3,11 +3,22 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+//config mongodb
+var mongoDBUrl = 'mongodb://xuannam2512:Lxn-htt091297@ds133630.mlab.com:33630/local_library'
+mongoose.connect(mongoDBUrl);
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB Connection Error:'));
+db.once("open", function(callback) {
+  console.log("connection succeeded.");
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
