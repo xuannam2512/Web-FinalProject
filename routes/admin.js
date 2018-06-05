@@ -28,5 +28,17 @@ router.get('/user/newuser', userController.newUser_get);
 
 router.post('/user/newuser', userController.newUser_post);
 
+//account
+router.get('/account', accountController.listAccount);
+
+router.get('/account/newaccount', accountController.createAccount_get);
+
+router.post('/account/newaccount', accountController.createAccount_post);
+
+router.get('/account/:id/delete', accountController.deleteAccount);
+
+//provider
+router.get('/provider', providerController.listProvider);
+
 
 module.exports = router;

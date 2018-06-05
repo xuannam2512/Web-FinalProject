@@ -12,7 +12,7 @@ exports.listAccount = function (req, res) {
                 return;
             }
 
-            res.render('./adminview/account', {
+            res.render('./admin/account/account', {
                 accountActive: true,
                 loginSuccess: true,
                 tables: results
@@ -84,7 +84,7 @@ exports.deleteAccount = function (req, res) {
                             return;
                         }
 
-                        res.render('./adminview/account', {
+                        res.render('./admin/account/account', {
                             accountActive: true,
                             loginSuccess: true,
                             success: true,
@@ -96,7 +96,7 @@ exports.deleteAccount = function (req, res) {
 }
 
 exports.createAccount_get = function (req, res) {
-    res.render('./adminview/createAccount', {
+    res.render('./admin/account/createAccount', {
         accountActive: true,
         loginSuccess: true,
         login: true,
@@ -124,15 +124,35 @@ exports.createAccount_post = function (req, res) {
 
     var errors = req.validationErrors();
     if (errors) {
-        return res.render('./adminview/createAccount', {
+        console.log(errors);
+        return res.render('./admin/account/createAccount', {
             accountActive: true,
             loginSuccess: true,
             login: true,
+            showError: false,
             errors: errors
         })
     } else {
         console.log('NO');
     }
+
+    //check username is exist before
+    Account.find({'username':username })
+    .exec(function(err, result) {
+        if (err) { return res.sendStatus(404) }
+        if(result.length == 1) {
+            req.flash('error_msg', 'Tên tài khoảng đã tồn tại');
+            errors = res.locals.getMessages();
+            console.log(errors.error_msg);
+            return res.render('./admin/account/createAccount', {
+                accountActive: true,
+                loginSuccess: true,
+                login: true,
+                showError: true,
+                error: errors.error_msg
+            })
+        }
+    })
 
     userDetail = {
         fullname: req.body.fullname,
@@ -164,11 +184,7 @@ exports.createAccount_post = function (req, res) {
                 console.log('new newUser: ' + newUser)
             });
 
-            res.redirect('/admin', {
-                dashboardActive: true,
-                loginSuccess: true,
-                msg: 'error'
-            });
+            res.redirect('/admin/account');
         });
     });
 }
@@ -211,7 +227,7 @@ exports.loginAdmin_get = function (req, res) {
 
 exports.loginAdmin_post = function (req, res) {
     passport.authenticate('local', {
-        failureRedirect: 'admin',
+        failureRedirect: '/admin',
         failureFlash: 'Tên đăng nhập hoặc mật khẩu không đúng.'
     })(req, res, function () {
         res.render('./admin/home', {
