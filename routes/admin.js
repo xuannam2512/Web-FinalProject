@@ -3,42 +3,20 @@ var parser = require('body-parser');
 var passport = require('passport');
 var router = express.Router();
 
-router.get('/', function (req, res, next) {
-    if (req.isAuthenticated()) {
-        return res.render('./admin/home', {
-            loginSuccess: true,
-            checkLogin: false,
-            dashboardActive: true
-        });
-    }
+//controller
+var accountController = require('../controllers/accountController');
+var userController = require('../controllers/userController');
+var mobileController = require('../controllers/mobileController');
+var providerController = require('../controllers/providerController');
+var importController = require('../controllers/importController');
+var saleController = require('../controllers/saleController');
 
-    var flashMessages = res.locals.getMessages();
+router.get('/', accountController.loginAdmin_get);
 
-    if(flashMessages.success_msg) {
-        console.log(flashMessages.success_msg);
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-            showSuccess: true,
-            success_msg: flashMessages.success_msg
-        });
-    }
-   
-    if(flashMessages.error) {
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-            showError: true,
-            errors: flashMessages.error
-        });
-    } else {
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-        });
-    }
-    
-});
+router.post('/', accountController.loginAdmin_post);
+
+//user
+router.get('/user', userController.listUser);
 
 
 module.exports = router;
