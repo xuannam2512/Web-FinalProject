@@ -10,7 +10,7 @@ exports.listUser = function(req, res) {
             if (err){
                 return next(err);
             }
-            res.render('./admin/user', { 
+            res.render('./admin/user/user', { 
                 userActive: true, 
                 loginSuccess: true,
                 tables: results 
@@ -21,8 +21,7 @@ exports.listUser = function(req, res) {
 //create new user get
 
 exports.newUser_get = function(req, res) {
-    res.render('adminview/createUser', {
-        layout: 'adminLayout.hbs',
+    res.render('admin/user/createUser', {
         loginSuccess: true,
         userActive: true
     });
@@ -47,7 +46,7 @@ exports.newUser_post = function(req, res) {
         }
         console.log('new user: ' + result._id)
 
-        res.render('adminview/createUser', {
+        res.render('admin/user/createUser', {
             userActive: true,
             loginSuccess: true,
             success: true
@@ -64,7 +63,8 @@ exports.editUser_get = function(req, res) {
                 console.log('error');
                 return next(err);
             }
-            res.render('./adminview/editUser', {
+            console.log(result);
+            res.render('./admin/user/editUser', {
                 userActive: true,
                 loginSuccess: true,
                 fullname: result.fullname,
@@ -91,7 +91,7 @@ exports.editUser_post = function(req, res) {
             return sendStatus(404);
         }
 
-        res.render('./adminview/editUser', {
+        res.render('./admin/user/editUser', {
             userActive: true,
             loginSuccess: true,
             fullname: req.body.nameTxt,
@@ -126,7 +126,7 @@ exports.deleteUser = function(req, res) {
             if (err){
                 return next(err1);
             }
-            res.render('./adminview/user', { 
+            res.render('./admin/user/user', { 
                 userActive: true, 
                 loginSuccess: true,
                 tables: results,

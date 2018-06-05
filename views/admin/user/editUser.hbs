@@ -1,0 +1,30 @@
+<div class="container">
+    <form id="contact" action="" method="post">
+        <h3 style="text-align: center; font-weight: bold;">Chỉnh Sửa Thông Tin</h3>
+        <br>
+        <br>
+        <fieldset>
+            <input name="nameTxt" placeholder="Nhập họ tên" type="text" tabindex="1" value='{{fullname}}' required autofocus>
+        </fieldset>
+        <br>
+        <br>
+        <fieldset>
+            <input name="emailTxt" placeholder="Nhập địa chỉ email" type="email" tabindex="2" value='{{email}}' required>
+        </fieldset>
+        <br>
+        <br>
+        <fieldset>
+            <input name="telTxt" placeholder="Nhập số điện thoại" type="tel" tabindex="3" value='{{tel}}' required>
+        </fieldset>
+        <br>
+        <br>
+        <fieldset>
+            <input name="addressTxt" placeholder="Nhập địa chỉ nơi ở" type="text" tabindex="4" value='{{address}}' required>
+        </fieldset>
+        <br>
+        <br>
+        <fieldset>
+            <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Hoàn Tất</button>
+        </fieldset>
+    </form>
+</div>
