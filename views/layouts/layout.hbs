@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{title}}</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+  </head>
+  <body>
+    {{#if loginSuccess}} 
+    
+    {{> header}}
+
+    <div id="wrapper" class="container-fluid">
+        <div class="row">
+            <div id="siderBar" class="col-sm-2 border-right bg-light">
+                {{> sidebar}}
+            </div>
+            <div class="col-sm-10 container">
+                {{{body}}}
+            </div>
+        </div>
+    </div>
+
+    {{else}}
+        {{{body}}}
+    {{/if}}
+
+    {{!-- script --}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#dataTables-example').DataTable();
+        });
+    </script> {{#if success}}
+    <script>
+        swal('Thanh Cong');
+    </script> {{/if}} {{#if notSuccess}}
+    <script>
+        swal('That Bai', 'So luong thiet bi phai bang 0');
+    </script> {{/if}} {{#if checkNameProvider}}
+    <script>
+        swal('That Bai', 'Nha cung cap da ton tai');
+    </script> {{/if}}
+
+    <script>
+        $(function () {
+            // Remove button click
+            $(document).on(
+                'click',
+                '[data-role="dynamic-fields"] > .form-inline [data-role="remove"]',
+                function (e) {
+                    e.preventDefault();
+                    $(this).closest('.form-inline').remove();
+                }
+            );
+            // Add button click
+            $(document).on(
+                'click',
+                '[data-role="dynamic-fields"] > .form-inline [data-role="add"]',
+                function (e) {
+                    e.preventDefault();
+                    var container = $(this).closest('[data-role="dynamic-fields"]');
+                    new_field_group = container.children().filter('.form-inline:first-child').clone();
+                    new_field_group.find('input').each(function () {
+                        $(this).val('');
+                    });
+                    container.append(new_field_group);
+                }
+            );
+        });
+    </script>
+
+    <script>
+        function myFunction() {
+            window.alert(document.getElementById("getID").getAttribute('href'));
+        }
+    </script>
+  </body>
+</html>

@@ -4,14 +4,22 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
+var body = require('body-parser');
+var flash = require('express-flash-messages');
+var session = require('express-session');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var expressHbs = require('express-handlebars');
+var Account = require('./models/Account');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var index = require('./routes/index');
+var users = require('./routes/users');
+var admin = require('./routes/admin');
 
 var app = express();
 
 //config mongodb
-var mongoDBUrl = 'mongodb://xuannam2512:Lxn-htt091297@ds133630.mlab.com:33630/local_library'
+var mongoDBUrl = 'mongodb://localhost:27017/finalProject'
 mongoose.connect(mongoDBUrl);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
@@ -21,17 +29,44 @@ db.once("open", function(callback) {
 });
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));
 app.set('view engine', 'hbs');
 
+app.use(body.json());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+//express session
+app.use(require('express-session')({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: false
+}));
+//flash
+app.use(flash());
+app.use(function(req, res, next) {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  next();
+})
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//config passport
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', index);
+app.use('/admin', admin);
+app.use('/users', users);
+
+//check account
+var Account = require('./models/Account');
+passport.use('local', new LocalStrategy(Account.authenticate()));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
