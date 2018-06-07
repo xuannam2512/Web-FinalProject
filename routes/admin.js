@@ -40,5 +40,7 @@ router.get('/account/:id/delete', accountController.deleteAccount);
 //provider
 router.get('/provider', providerController.listProvider);
 
+router.get('/provider/:id', providerController.providerDetail);
+
 
 module.exports = router;

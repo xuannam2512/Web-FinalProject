@@ -11,7 +11,7 @@ exports.listProvider = function(req, res) {
                 return;
             }
             console.log(results);
-            res.render('./adminview/provider', { 
+            res.render('./admin/provider/provider', { 
                 providerActive: true, 
                 loginSuccess: true,
                 tables: results
@@ -42,17 +42,17 @@ exports.providerDetail = function(req, res) {
         }
 
         console.log(results.mobiles);
-        res.render('./adminview/index', { 
-            providerActive: true, 
-            loginSuccess: true,
-            title: results.provider.name, 
-            tables: results.mobiles
-        });
+        // res.render('./admin/mobile/mobile', { 
+        //     providerActive: true, 
+        //     loginSuccess: true,
+        //     title: results.provider.name, 
+        //     tables: results.mobiles
+        // });
     });
 }
 
 exports.newProvider_get = function(req, res) {
-    res.render('./adminview/editProvider', {
+    res.render('./admin/provider/createProvider', {
         providerActive: true,
         loginSuccess: true,
         title: 'New Provider'

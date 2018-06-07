@@ -1,0 +1,55 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-sm-8">
+                <h3 class="text-center">Danh Sách Nhà Cung Cấp</h3>
+            </div>
+            <div class="col-sm-4">
+                <a href="/admin/provider/newprovider">
+                    <button type="button" class="btn btn-secondary" style="float: right;">
+                        Thêm
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /.panel-heading -->
+    <div class="panel-body">
+        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+            <thead>
+                <tr>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Số lượng sản phẩm</th>
+                    <th>Thông tin nhà cung cấp</th>
+                    <th>Các sản phẩm</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tables}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.amountOfModel}}</td>
+                    <td>{{this.info}}</td>
+                    <td>
+                        <a href={{this.url}}>Xem chi tiết</a>
+                    </td>
+                    <td>
+                        <a href={{this.urlEdit}}>
+                            <button type="button" class="btn btn-primary">
+                                Chỉnh sửa
+                            </button>
+                        </a>
+                        <a href={{this.urlDelete}}>
+                            <button type="button" class="btn btn-danger">
+                                Xóa
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <!-- /.panel-body -->
+</div>
