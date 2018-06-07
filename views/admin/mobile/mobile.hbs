@@ -1,0 +1,49 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 style="text-align: center;">{{title}}</h4>
+    </div>
+    <!-- /.panel-heading -->
+    <div class="panel-body">
+        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+            <thead>
+                <tr>
+                    <th>Tên model</th>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Tình trạng</th>
+                    <th>Giá bán</th>
+                    <th>Chi tiết sản phẩm</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tables}}
+                <tr>
+                    <td>{{this.mobileName}}</td>
+                    <td>{{this.provider.name}}</td>
+                    <td>{{this.status}} ({{this.sold}}/{{this.imported}})</td>
+                    <td>{{this.salePrice}}</td>
+                    <td>
+                        <a href={{this.url}}>
+                            Xem chi tiết
+                        </a>
+                    </td>
+                    <td>
+                        <a href={{this.urlEdit}}>
+                            <button type="button" class="btn btn-primary">
+                                Chỉnh sửa
+                            </button>
+                        </a>
+                        <a href="{{this.urlStatus}}">
+                            <button onclick="myFunction" id="chooseStatus" type="button" class="btn btn-danger"  data-toggle="modal" data-target="#myModal">
+                                Kick hoat
+                            </button>
+                        </a>
+
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <!-- /.panel-body -->
+</div>

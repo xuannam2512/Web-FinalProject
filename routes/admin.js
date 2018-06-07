@@ -42,5 +42,16 @@ router.get('/provider', providerController.listProvider);
 
 router.get('/provider/:id', providerController.providerDetail);
 
+//mobile
+router.get('/mobile', mobileController.listMobile);
+
+router.get('/mobile/:id', mobileController.mobileDetail);
+
+router.get('/mobile/:id/edit', mobileController.mobileEdit_Get);
+
+router.post('/mobile/:id/edit', mobileController.mobileEdit_Post);
+
+router.get('/mobile/:id/status', mobileController.setStatus);
+
 
 module.exports = router;

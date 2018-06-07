@@ -11,11 +11,11 @@ exports.listMobile = function (req, res) {
             if(err) {
                 return next(err);
             }
-            res.render('./adminview/index', { 
+            res.render('./admin/mobile/mobile', { 
                 login: true,
                 loginSuccess: true,
                 mobileActive: true, 
-                title: 'List Mobile',
+                title: 'Danh Sách Sản Phẩm',
                 tables: results
              });
         });
@@ -39,7 +39,7 @@ exports.mobileDetail = function (req, res) {
                 .exec(callback);
         }
     }, function (err, results) {
-        res.render('./adminview/mobileDetail', {
+        res.render('./admin/mobile/mobileDetail', {
             mobileActive: true,
             loginSuccess: true,
             title: results.mobile.mobileName,
@@ -72,7 +72,7 @@ exports.mobileEdit_Get = function(req, res) {
     }, function(err, result, next) {
         if (err) { return next(err) }
 
-        res.render('./adminview/editMobile', {
+        res.render('./admin/mobile/editMobile', {
             mobileActive: true,
             loginSuccess: true,
             title: result.mobile.mobileName,
@@ -119,7 +119,7 @@ exports.mobileEdit_Post = function(req, res) {
             return next(err);
         }
 
-        res.render('./adminview/editMobile', {
+        res.render('./admin/mobile/editMobile', {
             mobileActive: true,
             loginSuccess: true,
             success: true,
