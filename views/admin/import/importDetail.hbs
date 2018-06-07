@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-sm-8">
+                <h5>DataTables Advanced Tables</h5>
+            </div>
+            <div class="col-sm-4">
+                <a href="/admin/user/newuser">
+                    <button type="button" class="btn btn-secondary" style="float: right;">
+                        New
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /.panel-heading -->
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-4">
+                <ul>
+                    {{#each mobiles}}
+                    <li>{{this.mobileName}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <ul>
+                    {{#each amounts}}
+                    <li value="">{{this.importAmount}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <ul>
+                    {{#each prices}}
+                    <li value="">{{this.importPrice}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /.panel-body -->
+</div>

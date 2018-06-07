@@ -12,7 +12,7 @@ exports.listImports = function(req, res) {
 
         //tinh so luong thiet bi
 
-        res.render('./adminview/imports', {
+        res.render('./admin/import/importMobile', {
             importActive: true,
             loginSuccess: true,
             tables: results
@@ -43,7 +43,7 @@ exports.importDetail = function(req, res) {
         console.log(results);
 
 
-        res.render('./adminview/importDetail', {
+        res.render('./admin/import/importDetail', {
             importActive: true,
             loginSuccess: true,
             mobiles: results.mobileAndTime.mobileImported,
@@ -58,7 +58,7 @@ exports.newImport_Get = function(req, res) {
     Provider.find({})
     .exec(function(err, results, next) {
         if(err) { return next(err); }
-        res.render('./adminview/createImport', {
+        res.render('./admin/import/createImport', {
             importActive: true,            
             loginSuccess: true,
             list: results
@@ -207,7 +207,7 @@ exports.newImport_Post = function(req, res) {
             console.log(newImport);
         });
 
-        res.redirect('/admin/importMobile');
+        res.redirect('/admin/import/importMobile');
     });
 }
 

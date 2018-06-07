@@ -53,5 +53,14 @@ router.post('/mobile/:id/edit', mobileController.mobileEdit_Post);
 
 router.get('/mobile/:id/status', mobileController.setStatus);
 
+//import mobile
+router.get('/importMobile', importController.listImports);
+
+router.get('/importMobile/newImport', importController.newImport_Get);
+
+router.post('/importMobile/newImport', importController.newImport_Post);
+
+router.get('/importMobile/:id', importController.importDetail);
+
 
 module.exports = router;
