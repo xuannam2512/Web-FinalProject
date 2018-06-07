@@ -22,7 +22,6 @@
                     <th>Ngày nhập</th>
                     <th>Tổng tiền</th>
                     <th>Chi tiết đơn nhập</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -32,14 +31,7 @@
                     <td>{{this.date}}</td>
                     <td>{{this.totalPrice}}</td>
                     <td>
-                        <a href="#">Xem chi tiết</a>
-                    </td>
-                    <td>
-                        <a href="#">
-                            <button type="button" class="btn btn-primary">
-                                Chỉnh sửa
-                            </button>
-                        </a>
+                        <a href={{this.url}}>Xem chi tiết</a>
                     </td>
                 </tr>
                 {{/each}}

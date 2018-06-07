@@ -4,80 +4,93 @@ var Mobile = require('../models/Mobile');
 var Specification = require('../models/Specifications');
 var async = require('async');
 
-exports.listImports = function(req, res) {
+exports.listImports = function (req, res) {
     Imports.find({})
-    .populate('mobileImported')
-    .exec(function(err, results, next) {
-        if(err) { return next(err) }
+        .populate('mobileImported')
+        .exec(function (err, results, next) {
+            if (err) { return next(err) }
 
-        //tinh so luong thiet bi
+            //tinh so luong thiet bi
 
-        res.render('./admin/import/importMobile', {
-            importActive: true,
-            loginSuccess: true,
-            tables: results
+            res.render('./admin/import/importMobile', {
+                importActive: true,
+                loginSuccess: true,
+                tables: results
+            });
         });
-    });
 }
 
-exports.importDetail = function(req, res) {
-    
-    async.parallel({
-        mobileAndTime: function(callback) {
-            Imports.findById(req.params.id)
-            .populate('mobileImported')
-            .exec(callback);
-        },
-        amountOfModel: function(callback) {
-            Amount.find({'date': req.params.id})
-            .exec(callback);
-        },
-        priceOfModel: function(callback) {
-            Price.find({'date': req.params.id})
-            .exec(callback);
-        }
-    }, function(err, results, next) {
+exports.importDetail = function (req, res) {
 
-        if(err) { return next(err); }
+    var importDetails = []
+    Imports.findById(req.params.id)
+        .exec(function (err, result) {
+            if (err) {
+                console.log(err);
+                return;
+            }
 
-        console.log(results);
+            var mobiles = result.mobileImported;
+            var mobilePrices = result.mobilePrice;
+            var mobileAmounts = result.mobileAmount;
 
+            // console.log(mobiles);
+            // console.log(mobileAmounts);
+            // console.log(mobilePrices);
 
-        res.render('./admin/import/importDetail', {
-            importActive: true,
-            loginSuccess: true,
-            mobiles: results.mobileAndTime.mobileImported,
-            amounts: results.amountOfModel,
-            prices: results.priceOfModel
+            async.parallel({
+                mobile: function (callback) {
+                    Mobile.find({'_id': mobiles})
+                        .populate('provider')
+                        .exec(callback);
+                }
+            }, function (err, result) {
+                console.log(result.mobile.length);
+                for(var i = 0; i < result.mobile.length; i++) {
+                    importDetail = {
+                        mobile: result.mobile[i],
+                        amount: mobileAmounts[i],
+                        price: mobilePrices[i]
+                    }
+
+                    importDetails.push(importDetail);
+                }
+
+                res.render('./admin/import/importDetail', {
+                    importActive: true,
+                    loginSuccess: true, 
+                    tables: importDetails
+                })
+            })
+
         });
-    })    
 }
 
-exports.newImport_Get = function(req, res) {
+exports.newImport_Get = function (req, res) {
 
     Provider.find({})
-    .exec(function(err, results, next) {
-        if(err) { return next(err); }
-        res.render('./admin/import/createImport', {
-            importActive: true,            
-            loginSuccess: true,
-            list: results
-        });
-    })
+        .exec(function (err, results, next) {
+            if (err) { return next(err); }
+            res.render('./admin/import/createImport', {
+                importActive: true,
+                loginSuccess: true,
+                list: results
+            });
+        })
 }
 
-exports.newImport_Post = function(req, res) {
+exports.newImport_Post = function (req, res) {
 
     async.parallel({
-        provider: function(callback) {
-            Provider.find({'name': req.body.providerTxt})
-            .exec(callback);
+        provider: function (callback) {
+            Provider.find({ 'name': req.body.providerTxt })
+                .exec(callback);
         },
-        mobile: function(callback) {
-            Mobile.find({'mobileName': req.body.nameModelTxt})
-            .exec(callback);
+        mobile: function (callback) {
+            Mobile.find({ 'mobileName': req.body.nameModelTxt })
+                .exec(callback);
         }
-    }, function(err, result) {
+    }, function (err, result) {
 
         var providers = [];
         var mobiles = [];
@@ -85,13 +98,13 @@ exports.newImport_Post = function(req, res) {
 
         //cap nhat nhung model da co trong co so du lieu
         for (var i = 0; i < result.mobile.length; i++) {
-            for(var j = 0;  j < req.body.nameModelTxt.length; j++) {
-                if(result.mobile[i].mobileName == req.body.nameModelTxt[j]) {
+            for (var j = 0; j < req.body.nameModelTxt.length; j++) {
+                if (result.mobile[i].mobileName == req.body.nameModelTxt[j]) {
 
                     listMobile.push(result.mobile[i]);
 
                     var imported = parseInt(result.mobile[i].imported) + parseInt(req.body.amountTxt[i]);
-                    Mobile.update({'mobileName': result.mobile[i].mobileName}, {
+                    Mobile.update({ 'mobileName': result.mobile[i].mobileName }, {
                         imported: imported,
                         salePrice: req.body.salepricelTxt[i]
                     }).exec();
@@ -99,11 +112,11 @@ exports.newImport_Post = function(req, res) {
                 }
             }
         }
-        
-        //danh sach cac nha cung cap vua nhap theo dung thu tu
-        for(var i = 0; i < req.body.providerTxt.length; i++) {
 
-            for(var j = 0; j < result.provider.length; j++) {
+        //danh sach cac nha cung cap vua nhap theo dung thu tu
+        for (var i = 0; i < req.body.providerTxt.length; i++) {
+
+            for (var j = 0; j < result.provider.length; j++) {
 
                 if (req.body.providerTxt[i] == result.provider[j].name) {
                     providers.push(result.provider[j]);
@@ -115,14 +128,14 @@ exports.newImport_Post = function(req, res) {
         // cap nhat so luong model cua nha cung cap
 
         //them dien thoai moi chua co trong co so du lieu
-        for(var i = 0; i < req.body.nameModelTxt.length; i++) {
+        for (var i = 0; i < req.body.nameModelTxt.length; i++) {
             var j;
-            for(j = 0;  j < result.mobile.length; j++) {
-                if(result.mobile[j].mobileName == req.body.nameModelTxt[i]) {
+            for (j = 0; j < result.mobile.length; j++) {
+                if (result.mobile[j].mobileName == req.body.nameModelTxt[i]) {
                     break;
                 }
             }
-            if(j == result.mobile.length) {
+            if (j == result.mobile.length) {
                 mobileDetail = {
                     mobileName: req.body.nameModelTxt[i],
                     status: 'Con hang',
@@ -131,12 +144,12 @@ exports.newImport_Post = function(req, res) {
                     imported: req.body.amountTxt[i],
                     salePrice: req.body.salepricelTxt[i]
                 }
-    
+
                 var newMobile = Mobile(mobileDetail);
                 mobiles.push(newMobile);
                 listMobile.push(newMobile);
-                
-                newMobile.save(function(err, result) {
+
+                newMobile.save(function (err, result) {
                     if (err) {
                         console.error(err);
                         return;
@@ -156,9 +169,9 @@ exports.newImport_Post = function(req, res) {
                     memorycard: req.body.memorycardTxt[i],
                     sim: req.body.simTxt[i]
                 }
-    
+
                 var newSpecification = new Specification(specificationDetail);
-                newSpecification.save(function(err, result) {
+                newSpecification.save(function (err, result) {
                     if (err) {
                         console.error(err);
                         return;
@@ -169,14 +182,14 @@ exports.newImport_Post = function(req, res) {
         }
 
         //cap nhat lai so luong model cua nha cung cap
-        
-        for(var i = 0; i < result.provider.length; i++) {
+
+        for (var i = 0; i < result.provider.length; i++) {
             var count = 0;
             var amountOfModel = parseInt(result.provider[i].amountOfModel);
-            for(var j = 0; j < mobiles.length; j++) {
-                if(mobiles[j].provider._id == result.provider[i]._id) {
+            for (var j = 0; j < mobiles.length; j++) {
+                if (mobiles[j].provider._id == result.provider[i]._id) {
                     count = count + 1;
-                }  
+                }
             }
 
             Provider.findByIdAndUpdate(result.provider[i]._id, {
@@ -186,7 +199,7 @@ exports.newImport_Post = function(req, res) {
 
         //tao new import
         var totalPrice = 0;
-        for(var i = 0; i < req.body.importpricelTxt.length; i++) {
+        for (var i = 0; i < req.body.importpricelTxt.length; i++) {
             totalPrice = totalPrice + parseInt(req.body.importpricelTxt[i]);
         }
 
@@ -199,7 +212,7 @@ exports.newImport_Post = function(req, res) {
         }
 
         var newImport = Imports(importDetail);
-        newImport.save(function(err, result) {
+        newImport.save(function (err, result) {
             if (err) {
                 console.error(err);
                 return;
@@ -211,10 +224,10 @@ exports.newImport_Post = function(req, res) {
     });
 }
 
-exports.editImport = function(req, res) {
+exports.editImport = function (req, res) {
     res.send('edit import');
 }
 
-exports.deleteImport = function(req, res) {
+exports.deleteImport = function (req, res) {
     res.send('delete import');
 }
