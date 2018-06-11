@@ -10,6 +10,7 @@ var mobileController = require('../controllers/mobileController');
 var providerController = require('../controllers/providerController');
 var importController = require('../controllers/importController');
 var saleController = require('../controllers/saleController');
+var uploadController = require('../controllers/uploadController');
 
 router.get('/', accountController.loginAdmin_get);
 
@@ -62,5 +63,9 @@ router.post('/importMobile/newImport', importController.newImport_Post);
 
 router.get('/importMobile/:id', importController.importDetail);
 
+//demo upload
+router.get('/upload', uploadController.upload_get);
+
+router.post('/upload', uploadController.upload_post);
 
 module.exports = router;

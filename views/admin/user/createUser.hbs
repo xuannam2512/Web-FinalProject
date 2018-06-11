@@ -1,25 +1,49 @@
-<div class="container">
-    <form id="contact" action="" method="POST">
-        <h3 style="text-align: center; font-weight: bold;">Thêm Thông Tin Người Dùng Mới</h3>
-        <br><br>
-        <fieldset>
-            <input placeholder="Nhập họ tên" type="text" tabindex="1" name="nameTxt" required autofocus>
-        </fieldset>
-        <br><br>
-        <fieldset>
-            <input placeholder="Nhập địa chỉ email" type="email" tabindex="2" name="emailTxt" required>
-        </fieldset>
-        <br><br>
-        <fieldset>
-            <input placeholder="Nhập số điện thoại" type="tel" tabindex="3" name="telTxt" required>
-        </fieldset>
-        <br><br>
-        <fieldset>
-            <input placeholder="Nhập địa chỉ" type="text" tabindex="4" name="addressTxt" required>
-        </fieldset>
-        <br><br>
-        <fieldset>
-            <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Hoàn Tất</button>
-        </fieldset>
-    </form>
-</div>
+{{#if errors}} 
+    {{#each errors}}
+        <div class="alert alert-danger">{{msg}}</div>
+    {{/each}} 
+{{/if}}
+{{#if showError}}
+    {{#each error}}
+        <div class="alert alert-danger">{{this}}</div>
+    {{/each}}
+{{/if}}
+<form class="modal-content" action="" method="POST">
+    <div class="container">
+        <h1>Thêm Mới Thông Tin Khách Hàng</h1>
+        <p>Làm ơn điền đầy đủ thông tin vào mẫu.</p>
+        <hr>
+        <label for="imgUser">
+            <b>Chọn ảnh đại diện</b>
+        </label>
+        <div class="input-group input-group-sm mb-3">
+            <input name="imgUser" type="file" class="form-control" onchange="readURL(this);">
+        </div>
+        <img id="imgUser" alt="User Image" height="200" width="200">
+        <br>
+
+        <label for="fullname">
+            <b>Họ và tên</b>
+        </label>
+        <input type="text" placeholder="Nhập họ và tên" name="fullname">
+
+        <label for="email">
+            <b>Email</b>
+        </label>
+        <input type="text" placeholder="Nhập địa chỉ Email" name="email">
+
+        <label for="tel">
+            <b>Số điện thoại</b>
+        </label>
+        <input type="text" placeholder="Nhập số điện thoại" name="tel">
+
+        <label for="address">
+            <b>Địa chỉ</b>
+        </label>
+        <input type="text" placeholder="Nhập địa chỉ" name="address">
+
+        <div class="clearfix">
+            <button type="submit" class="signupbtn btn-lg btn-block">Đăng ký</button>
+        </div>
+    </div>
+</form>

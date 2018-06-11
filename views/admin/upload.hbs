@@ -1,0 +1,18 @@
+<div class="container">
+    <form ref='uploadForm' id='uploadForm' action='' method='post' encType="multipart/form-data">
+        {{#if error}}
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                
+            </button>{{msg}}</div>
+        {{/if}} {{#if success}}
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>
+            {{msg}}
+            </div>
+        {{/if}}
+        <input type="file" name="myImage" />
+        <input type='submit' value='Upload!' />
+    </form>
+    <img src="{{file}}" class="rounded" alt="Cinque Terre" width="304" height="236">
+</div>

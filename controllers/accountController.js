@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var passport = require("passport");
 var Account = require('../models/Account');
 var User = require('../models/User');
+var upload = require('./configUploadImage');
 var async = require('async');
 
 exports.listAccount = function (req, res) {
@@ -105,43 +106,10 @@ exports.createAccount_get = function (req, res) {
 }
 
 exports.createAccount_post = function (req, res) {
-    var fullname = req.body.fullname;
-    var email = req.body.email;
-    var tel = req.body.tel;
-    var address = req.body.address;
-    var username = req.body.username;
-    var password = req.body.password;
-    var password2 = req.body.password2;
-
-    req.checkBody('password2', 'Password do not match').equals(req.body.password);
-    req.checkBody('fullname', 'Full name is required.').notEmpty();
-    req.checkBody('email', 'Email is required.').notEmpty();
-    req.checkBody('address', 'Address is required.').notEmpty();
-    req.checkBody('tel', 'Phone Number is required.').notEmpty();
-    req.checkBody('username', 'User name is required.').notEmpty();
-    req.checkBody('password', 'Password is required.').notEmpty();
-    req.checkBody('password2', 'Confirm password is required.').notEmpty();
-
-    var errors = req.validationErrors();
-    if (errors) {
-        console.log(errors);
-        return res.render('./admin/account/createAccount', {
-            accountActive: true,
-            loginSuccess: true,
-            login: true,
-            showError: false,
-            errors: errors
-        })
-    } else {
-        console.log('NO');
-    }
-
-    //check username is exist before
-    Account.find({'username':username })
-    .exec(function(err, result) {
-        if (err) { return res.sendStatus(404) }
-        if(result.length == 1) {
-            req.flash('error_msg', 'Tên tài khoảng đã tồn tại');
+    //upload image
+    upload.Upload(req, res, (err) => {
+        if (err) {
+            req.flash('error_msg', 'Tải ảnh lên thất bại, hãy thử ảnh khác!');
             errors = res.locals.getMessages();
             console.log(errors.error_msg);
             return res.render('./admin/account/createAccount', {
@@ -150,43 +118,108 @@ exports.createAccount_post = function (req, res) {
                 login: true,
                 showError: true,
                 error: errors.error_msg
-            })
-        }
-    })
-
-    userDetail = {
-        fullname: req.body.fullname,
-        email: req.body.email,
-        tel: req.body.tel,
-        address: req.body.address
-    }
-
-    var newUser = new User(userDetail);
-
-    Account.register(new Account({
-        username: req.body.username,
-        authorization: req.body.authorization,
-        user: newUser,
-        status: 'Active'
-    }), req.body.password, function (err, account) {
-        if (err) {
-            console.log('error: ' + err);
-            return res.send(account);
-        }
-
-        passport.authenticate('local')(req, res, function () {
-
-            newUser.save(function (err, result) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                console.log('new newUser: ' + newUser)
             });
+        } else {
+            if (req.file == undefined) {
+                req.flash('error_msg', 'Chưa có hình được chọn!');
+                errors = res.locals.getMessages();
+                console.log(errors.error_msg);
+                return res.render('./admin/account/createAccount', {
+                    accountActive: true,
+                    loginSuccess: true,
+                    login: true,
+                    showError: true,
+                    error: errors.error_msg
+                });
+            } else {
+                var fullname = req.body.fullname;
+                var email = req.body.email;
+                var tel = req.body.tel;
+                var address = req.body.address;
+                var username = req.body.username;
+                var password = req.body.password;
+                var password2 = req.body.password2;
 
-            res.redirect('/admin/account');
-        });
-    });
+                req.checkBody('password2', 'Password do not match').equals(req.body.password);
+                req.checkBody('fullname', 'Full name is required.').notEmpty();
+                req.checkBody('email', 'Email is required.').notEmpty();
+                req.checkBody('address', 'Address is required.').notEmpty();
+                req.checkBody('tel', 'Phone Number is required.').notEmpty();
+                req.checkBody('username', 'User name is required.').notEmpty();
+                req.checkBody('password', 'Password is required.').notEmpty();
+                req.checkBody('password2', 'Confirm password is required.').notEmpty();
+
+                var errors = req.validationErrors();
+                if (errors) {
+                    console.log(errors);
+                    return res.render('./admin/account/createAccount', {
+                        accountActive: true,
+                        loginSuccess: true,
+                        login: true,
+                        showError: false,
+                        errors: errors
+                    })
+                } else {
+                    console.log('NO');
+                }
+
+                //check username is exist before
+                Account.find({ 'username': username })
+                    .exec(function (err, result) {
+                        if (err) { return res.sendStatus(404) }
+                        if (result.length == 1) {
+                            req.flash('error_msg', 'Tên tài khoảng đã tồn tại');
+                            errors = res.locals.getMessages();
+                            console.log(errors.error_msg);
+                            return res.render('./admin/account/createAccount', {
+                                accountActive: true,
+                                loginSuccess: true,
+                                login: true,
+                                showError: true,
+                                error: errors.error_msg
+                            })
+                        }
+                    })
+
+
+                userDetail = {
+                    fullname: req.body.fullname,
+                    img: '../../public/upload/' + req.file.filename,
+                    email: req.body.email,
+                    tel: req.body.tel,
+                    address: req.body.address
+                }
+
+                var newUser = new User(userDetail);
+
+                Account.register(new Account({
+                    username: req.body.username,
+                    authorization: req.body.authorization,
+                    user: newUser,
+                    status: 'Active'
+                }), req.body.password, function (err, account) {
+                    if (err) {
+                        console.log('error: ' + err);
+                        return res.send(account);
+                    }
+
+                    passport.authenticate('local')(req, res, function () {
+
+                        newUser.save(function (err, result) {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            console.log('new newUser: ' + newUser)
+                        });
+
+                        res.redirect('/admin/account');
+                    });
+                });
+            }
+        }
+
+    })
 }
 
 exports.loginAdmin_get = function (req, res) {

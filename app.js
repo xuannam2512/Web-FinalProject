@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
-var body = require('body-parser');
+var bodyParser = require('body-parser');
 var flash = require('express-flash-messages');
 var session = require('express-session');
 var passport = require('passport');
@@ -25,7 +25,7 @@ mongoose.connect(mongoDBUrl);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB Connection Error:'));
-db.once("open", function(callback) {
+db.once("open", function (callback) {
   console.log("connection succeeded.");
 });
 
@@ -33,7 +33,8 @@ db.once("open", function(callback) {
 app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));
 app.set('view engine', 'hbs');
 
-app.use(body.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
  var userSchema = new Schema({
      fullname: { type: String, required: true, max: 50 },
-     img: [{ type: String }],
+     img: { type: String },
      email: { type: String, required: true },
      tel: { type: String, required: true },
      address: { type: String, required: true }
