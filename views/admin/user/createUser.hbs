@@ -8,17 +8,18 @@
         <div class="alert alert-danger">{{this}}</div>
     {{/each}}
 {{/if}}
-<form class="modal-content" action="" method="POST">
+{{#if showSuccess}}
+    <div class="alert alert-success">{{msg}}</div>
+{{/if}}
+<form class="modal-content" action="" method="POST" enctype="multipart/form-data">
     <div class="container">
         <h1>Thêm Mới Thông Tin Khách Hàng</h1>
         <p>Làm ơn điền đầy đủ thông tin vào mẫu.</p>
         <hr>
-        <label for="imgUser">
+        <label for="myImage">
             <b>Chọn ảnh đại diện</b>
         </label>
-        <div class="input-group input-group-sm mb-3">
-            <input name="imgUser" type="file" class="form-control" onchange="readURL(this);">
-        </div>
+        <input name="myImage" type="file" onchange="readURL(this);">
         <img id="imgUser" alt="User Image" height="200" width="200">
         <br>
 

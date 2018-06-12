@@ -36,6 +36,8 @@ router.get('/account/newaccount', accountController.createAccount_get);
 
 router.post('/account/newaccount', accountController.createAccount_post);
 
+router.get('/account/:id', accountController.accountDetail);
+
 router.get('/account/:id/delete', accountController.deleteAccount);
 
 //provider

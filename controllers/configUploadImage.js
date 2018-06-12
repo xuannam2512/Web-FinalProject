@@ -1,6 +1,10 @@
 var multer  = require('multer');
 var path = require('path');
 var fs = require('fs');
+const { promisify } = require('util')
+
+//delete image
+const unlinkAsync = promisify(fs.unlink)
 
 //set storage engine
 const storage = multer.diskStorage({
@@ -32,3 +36,5 @@ function checkFileType(file, cb) {
 }
 
 module.exports.Upload = upload;
+
+module.exports.Delete = unlinkAsync;

@@ -22,28 +22,23 @@ exports.listAccount = function (req, res) {
 }
 
 exports.accountDetail = function (req, res) {
-
-    User.findById(req.params.id)
-        .exec(function (err, result) {
-            if (err) {
-                console.log('err: ' + err);
-                return;
-            }
-
-            if (result == null) {
-                res.sendStatus(404);
-                return;
-            }
-
-            res.render('./adminview/accountDetail', {
-                userActive: true,
-                loginSuccess: true,
-                fullname: result.fullname,
-                email: result.email,
-                tel: result.tel,
-                address: result.address
-            });
+    console.log(req.params.id);
+    Account.findById(req.params.id)
+    .populate('user')
+    .exec(function(err, result) {
+        console.log(result);
+        res.render('./admin/account/accountDetail', {
+            accountActive: true,
+            loginSuccess: true,
+            url: result.user._id,
+            img: result.user.imgDisplay,
+            username: result.username,
+            fullname: result.user.fullname,
+            email: result.user.email,
+            tel: result.user.tel,
+            address: result.user.address
         });
+    });
 
 }
 
@@ -184,7 +179,8 @@ exports.createAccount_post = function (req, res) {
 
                 userDetail = {
                     fullname: req.body.fullname,
-                    img: '../../public/upload/' + req.file.filename,
+                    imgDisplay: '../../../uploads/' + req.file.filename,
+                    imgDelete: './public/uploads/' + req.file.filename,
                     email: req.body.email,
                     tel: req.body.tel,
                     address: req.body.address

@@ -13,7 +13,7 @@ var accountSchema = new Schema({
 accountSchema
 .virtual('url')
 .get(function() {
-    return '/admin/account/' + this.user;
+    return '/admin/account/' + this._id;
 });
 
 accountSchema

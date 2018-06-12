@@ -1,30 +1,49 @@
-<div class="container">
-    <form id="contact" action="" method="post">
-        <h3 style="text-align: center; font-weight: bold;">Chỉnh Sửa Thông Tin</h3>
+{{#if errors}} 
+    {{#each errors}}
+        <div class="alert alert-danger">{{msg}}</div>
+    {{/each}} 
+{{/if}}
+{{#if showError}}
+    {{#each error}}
+        <div class="alert alert-danger">{{this}}</div>
+    {{/each}}
+{{/if}}
+{{#if showSuccess}}
+    <div class="alert alert-success">{{success_msg}}</div>
+{{/if}}
+<form class="modal-content" action="" method="POST" enctype="multipart/form-data">
+    <div class="container">
+        <h1>Chỉnh Sửa Thông Tin Khách Hàng</h1>
+        <hr>
+        <label for="myImage">
+            <b>Chọn ảnh đại diện</b>
+        </label>
+        <input name="myImage" type="file" onchange="readURL(this);">
+        <img id="imgUser" src="{{img}}" alt="User Image" height="200" width="200">
         <br>
-        <br>
-        <fieldset>
-            <input name="nameTxt" placeholder="Nhập họ tên" type="text" tabindex="1" value='{{fullname}}' required autofocus>
-        </fieldset>
-        <br>
-        <br>
-        <fieldset>
-            <input name="emailTxt" placeholder="Nhập địa chỉ email" type="email" tabindex="2" value='{{email}}' required>
-        </fieldset>
-        <br>
-        <br>
-        <fieldset>
-            <input name="telTxt" placeholder="Nhập số điện thoại" type="tel" tabindex="3" value='{{tel}}' required>
-        </fieldset>
-        <br>
-        <br>
-        <fieldset>
-            <input name="addressTxt" placeholder="Nhập địa chỉ nơi ở" type="text" tabindex="4" value='{{address}}' required>
-        </fieldset>
-        <br>
-        <br>
-        <fieldset>
-            <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Hoàn Tất</button>
-        </fieldset>
-    </form>
-</div>
+
+        <label for="fullname">
+            <b>Họ và tên</b>
+        </label>
+        <input type="text" placeholder="Nhập họ và tên" name="fullname" value="{{fullname}}">
+
+        <label for="email">
+            <b>Email</b>
+        </label>
+        <input type="text" placeholder="Nhập địa chỉ Email" name="email" value="{{email}}">
+
+        <label for="tel">
+            <b>Số điện thoại</b>
+        </label>
+        <input type="text" placeholder="Nhập số điện thoại" name="tel" value="{{tel}}">
+
+        <label for="address">
+            <b>Địa chỉ</b>
+        </label>
+        <input type="text" placeholder="Nhập địa chỉ" name="address" value="{{address}}">
+
+        <div class="clearfix">
+            <button type="submit" class="signupbtn btn-lg btn-block">Hoàn Tất</button>
+        </div>
+    </div>
+</form>
