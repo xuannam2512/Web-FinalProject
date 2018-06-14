@@ -1,178 +1,292 @@
 var Provider = require('../models/Provider');
 var Mobile = require('../models/Mobile');
+var Image = require('./configUploadImage');
 var async = require('async');
 
-exports.listProvider = function(req, res) {
+exports.listProvider = function (req, res) {
     console.log('here');
     Provider.find({})
-        .exec(function(err, results) {
-            if(err) {
+        .exec(function (err, results) {
+            if (err) {
                 console.error(err);
                 return;
             }
             console.log(results);
-            res.render('./admin/provider/provider', { 
-                providerActive: true, 
+            res.render('./admin/provider/provider', {
+                providerActive: true,
                 loginSuccess: true,
                 tables: results
             });
         });
 }
 
-exports.providerDetail = function(req, res) {
+exports.providerDetail = function (req, res) {
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.findById(req.params.id)
                 .exec(callback);
         },
-        mobiles: function(callback) {
-            Mobile.find({'provider': req.params.id})
-            .populate('provider')
+        mobiles: function (callback) {
+            Mobile.find({ 'provider': req.params.id })
+                .populate('provider')
                 .exec(callback)
         }
-    }, function(err, results) {
+    }, function (err, results) {
         if (err) {
             console.log('err: ' + err);
-            return;
+            return res.render('./admin/provider/providerDetail', {
+                providerActive: true,
+                loginSuccess: true,
+                showError: true,
+                error_msg: err
+            });
         }
 
         if (results.provider == null) {
             console.log('no result');
-            return;
+            return res.render('./admin/provider/providerDetail', {
+                providerActive: true,
+                loginSuccess: true,
+                showError: true,
+                error_msg: 'Không có kết quả hiển thị, hãy thử lại!'
+            });
         }
 
         console.log(results.mobiles);
-        // res.render('./admin/mobile/mobile', { 
-        //     providerActive: true, 
-        //     loginSuccess: true,
-        //     title: results.provider.name, 
-        //     tables: results.mobiles
-        // });
+        res.render('./admin/provider/providerDetail', {
+            providerActive: true,
+            loginSuccess: true,
+            name: results.provider.name,
+            info: results.provider.info,
+            img: results.provider.imgDisplay,
+            tables: results.mobiles
+        });
     });
 }
 
-exports.newProvider_get = function(req, res) {
+exports.newProvider_get = function (req, res) {
     res.render('./admin/provider/createProvider', {
         providerActive: true,
         loginSuccess: true,
-        title: 'New Provider'
     });
 }
 
-exports.newProvider_post = function(req, res) {
-    Provider.find({})
-    .exec(function(err, results) {
+exports.newProvider_post = function (req, res) {
+    Image.Upload(req, res, (err) => {
         if (err) {
-            res.sendStatis(404);
-        }
-        var newName = req.body.nameTxt;
-
-        for(var i = 0; i < results.length; i++) {
-            var oldName = results[i].name;
-            var lowerOldName = oldName.toLowerCase();
-            var lowerNewName = newName.toLowerCase();
-
-            if(lowerNewName == lowerOldName) {
-                return res.render('./adminview/editProvider', { 
+            console.log(err);
+            return res.render('./admin/provider/createProvider', {
+                providerActive: true,
+                loginSuccess: true,
+                showError: true,
+                error_msg: 'Upload ảnh thất bại, hãy thử lại!'
+            });
+        } else {
+            if (req.file == undefined) {
+                console.log('chưa có ảnh được chọn');
+                return res.render('./admin/provider/createProvider', {
                     providerActive: true,
                     loginSuccess: true,
-                    checkNameProvider: true,
-                    title: 'New Provider',
-                    name: req.body.nameTxt,
-                    info: req.body.infoTxt
+                    showError: true,
+                    error_msg: 'Chưa có hình được chọn!'
                 });
+            } else {
+                Provider.find({})
+                    .exec(function (err, results) {
+                        if (err) {
+                            var path = './public/uploads/' + req.file.filename;
+                            Image.Delete(path);
+                            res.sendStatis(404);
+                        }
+                        var newName = req.body.name;
+                        console.log(newName);
+                        var upperNewName = newName.toUpperCase();
+
+                        for (var i = 0; i < results.length; i++) {
+                            var oldName = results[i].name;
+
+                            if (oldName == upperNewName) {
+                                var path = './public/uploads/' + req.file.filename;
+                                Image.Delete(path);
+                                return res.render('./admin/provider/createProvider', {
+                                    providerActive: true,
+                                    loginSuccess: true,
+                                    showError: true,
+                                    error_msg: 'Tên nhà cung cấp đã tồn tại trong dữ liệu.',
+                                    name: req.body.name,
+                                    info: req.body.info
+                                });
+                            }
+                        }
+
+                        providerDetail = {
+                            name: upperNewName,
+                            amountOfModel: '0',
+                            imgDisplay: '../../../uploads/' + req.file.filename,
+                            imgDelete: './public/uploads/' + req.file.filename,
+                            info: req.body.info
+                        }
+
+                        var newProvider = new Provider(providerDetail);
+
+                        newProvider.save(function (err, result) {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+                            console.log('new newProvider: ' + newProvider)
+
+                            return res.render('./admin/provider/createProvider', {
+                                providerActive: true,
+                                loginSuccess: true,
+                                showSuccess: true,
+                                success_msg: 'Thêm mới nhà cung cấp thành công!'
+                            });
+                        });
+                    });
             }
         }
+    })
 
-        providerDetail = {
-            name: req.body.nameTxt,
-            amountOfModel: '0',
-            info: req.body.infoTxt
-        }
+}
 
-        var newProvider = new Provider(providerDetail);
+exports.editProvider_Get = function (req, res) {
+    Provider.findById(req.params.id)
+        .exec(function (err, result, next) {
+            if (err) { return next(err) }
 
-        newProvider.save(function(err, result) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log('new newProvider: ' + newProvider)
-        });
-
-        Provider.find({}) 
-        .exec(function(err1, results1) {
-            res.render('./adminview/provider', { 
-                providerActive: true, 
+            res.render('./admin/provider/editProvider', {
+                providerActive: true,
                 loginSuccess: true,
-                success: true,
-                tables: results1
+                img: result.imgDisplay,
+                name: result.name,
+                info: result.info
             });
         });
-    });
-
 }
 
-exports.editProvider_Get = function(req, res) {
-    Provider.findById(req.params.id)
-    .exec(function(err, result, next) {
-        if (err) { return next(err) }
-
-        res.render('./adminview/editProvider', { 
-            providerActive: true,
-            title: 'Edit Provider',
-            name: result.name,
-            info: result.info
-        });
-    });
-}
-
-exports.editProvider_Post = function(req, res) {
-    Provider.findByIdAndUpdate(req.params.id, {
-        name: req.body.nameTxt,
-        info: req.body.infoTxt
-    },).exec(function(err, result, next) {
-        if (err) { return next(err) }
-        console.log(result);
-        res.render('./adminview/editProvider', { 
-            providerActive: true,
-            name: req.body.nameTxt,
-            info: req.body.infoTxt,
-            success: true
-        });
-    });
-}
-
-exports.deleteProvider = function(req, res) {
-    Provider.findById(req.params.id)
-    .exec(function(err, result) {
-        if (result.amountOfModel == 0) {
-            Provider.findByIdAndRemove(req.params.id, function(err1, next) {
-                if(err1) {
-                    return next(err);
-                }
-                Provider.find({})
-                .exec(function(err2, datas, next) {
-
-                    if(err2) { return next(err2); }
-
-                    res.render('./adminview/provider', {
-                        providerActive: true,
-                        success: true,
-                        tables: datas
-                    });
-                })
-            })
+exports.editProvider_Post = function (req, res) {
+    Image.Upload(req, res, (err) => {
+        if (err) {
+            console.log(req.params.id);
+            return res.render('./admin/provider/editProvider', {
+                loginSuccess: true, 
+                providerActive: true,
+                showError: true,
+                error_msg: err,
+                name: req.body.name,
+                info: req.body.info
+            });
         } else {
-            console.log('can not delete');
-            Provider.find({}) 
-            .exec(function(err1, datas) {
-                res.render('./adminview/provider', {
-                    providerActive: true,
-                    notSuccess: true,
-                    tables: datas
+            if (req.file == undefined) {
+                Provider.findByIdAndUpdate(req.params.id, {
+                    name: req.body.name,
+                    info: req.body.info,
+                }, ).exec(function (err, result) {
+                    if (err) {
+                        var path = './public/uploads/' + req.file.filename;
+                        Image.Delete(path);
+                        return res.render('./admin/provider/editProvider', {
+                            loginSuccess: true,
+                            providerActive: true,
+                            showError: true,
+                            error_msg: 'Không lưu được dữ liệu, hãy thử lại!'
+                        });
+                    }
+                    console.log(result);
+                    res.render('./admin/provider/editProvider', {
+                        providerActive: true,
+                        loginSuccess: true,
+                        showSuccess: true,
+                        success_msg: 'Chỉnh sửa thành công!'
+                    });
                 });
-            })
+            } else {
+                Provider.findById(req.params.id)
+                .exec(function(err, result) {
+                    if (err) {
+                        var path = './public/uploads/' + req.file.filename;
+                        Image.Delete(path);
+                        return res.render('./admin/provider/editProvider', {
+                            loginSuccess: true,
+                            providerActive: true,
+                            showError: true,
+                            error_msg: 'Không load được dữ liệu, hãy thử lại!'
+                        });
+                    }
+                    //delete old image
+                    Image.Delete(result.imgDelete);
+                    //update provider
+                    Provider.findByIdAndUpdate(req.params.id, {
+                        name: req.body.name,
+                        imgDisplay: '../../../uploads/' + req.file.filename,
+                        imgDelete: './public/uploads/' + req.file.filename,
+                        info: req.body.info,
+                    }, ).exec(function (err, result) {
+                        if (err) {
+                            var path = './public/uploads/' + req.file.filename;
+                            Image.Delete(path);
+                            return res.render('./admin/provider/editProvider', {
+                                loginSuccess: true,
+                                providerActive: true,
+                                showError: true,
+                                error_msg: 'Không lưu được dữ liệu, hãy thử lại!'
+                            });
+                        }
+                        console.log(result);
+                        res.render('./admin/provider/editProvider', {
+                            providerActive: true,
+                            loginSuccess: true,
+                            showSuccess: true,
+                            success_msg: 'Chỉnh sửa thành công!'
+                        });
+                    });
+
+                });
+            }
         }
-    });
+    })
+}
+
+exports.deleteProvider = function (req, res) {
+    Provider.findById(req.params.id)
+        .exec(function (err, result) {
+            if (result.amountOfModel == 0) {
+                Provider.findByIdAndRemove(req.params.id, function (err1, next) {
+                    if (err1) {
+                        return next(err);
+                    }
+                    //delete data
+                    var path = result.imgDelete;
+                    Provider.find({})
+                        .exec(function (err2, results, next) {
+
+                            if (err2) { return next(err2); }
+
+                            //delete image in database
+                            Image.Delete(path);
+
+                            res.render('./admin/provider/provider', {
+                                providerActive: true,
+                                loginSuccess: true,
+                                showSuccess: true,
+                                success_msg: 'Xóa thành công!',
+                                tables: results
+                            });
+                        })
+                })
+            } else {
+                console.log('can not delete');
+                Provider.find({})
+                    .exec(function (err1, results) {
+                        res.render('./admin/provider/provider', {
+                            providerActive: true,
+                            loginSuccess: true,
+                            tables: results,
+                            showError: true,
+                            error_msg: 'Không thể xóa nhà cung cấp này do số lượng sản phẩm lớn hơn 0.'
+                        });
+                    })
+            }
+        });
 }

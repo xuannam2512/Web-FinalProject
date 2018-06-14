@@ -1,3 +1,9 @@
+{{#if showSuccess}}
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{success_msg}}
+    </div>
+{{/if}}
 <div class="panel panel-default">
     <div class="panel-heading">
         <div class="row">
@@ -6,7 +12,7 @@
             </div>
             <div class="col-sm-2">
                 <a href="/admin/user/newuser">
-                    <button type="button" class="btn btn-secondary" style="float: right;">
+                    <button type="button" class="btn btn-primary float-right">
                         Thêm
                     </button>
                 </a>

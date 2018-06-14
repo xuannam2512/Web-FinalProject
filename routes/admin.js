@@ -43,7 +43,17 @@ router.get('/account/:id/delete', accountController.deleteAccount);
 //provider
 router.get('/provider', providerController.listProvider);
 
+router.get('/provider/newprovider', providerController.newProvider_get);
+
+router.post('/provider/newprovider', providerController.newProvider_post);
+
 router.get('/provider/:id', providerController.providerDetail);
+
+router.get('/provider/:id/edit', providerController.editProvider_Get);
+
+router.post('/provider/:id/edit', providerController.editProvider_Post);
+
+router.get('/provider/:id/delete', providerController.deleteProvider);
 
 //mobile
 router.get('/mobile', mobileController.listMobile);

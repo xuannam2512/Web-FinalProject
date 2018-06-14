@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var passport = require("passport");
 var Account = require('../models/Account');
 var User = require('../models/User');
-var upload = require('./configUploadImage');
+var Image = require('./configUploadImage');
 var async = require('async');
 
 exports.listAccount = function (req, res) {
@@ -102,7 +102,7 @@ exports.createAccount_get = function (req, res) {
 
 exports.createAccount_post = function (req, res) {
     //upload image
-    upload.Upload(req, res, (err) => {
+    Image.Upload(req, res, (err) => {
         if (err) {
             req.flash('error_msg', 'Tải ảnh lên thất bại, hãy thử ảnh khác!');
             errors = res.locals.getMessages();
@@ -147,6 +147,8 @@ exports.createAccount_post = function (req, res) {
                 var errors = req.validationErrors();
                 if (errors) {
                     console.log(errors);
+                    var path = './public/uploads/' + req.file.filename;
+                    Image.Delete(path);
                     return res.render('./admin/account/createAccount', {
                         accountActive: true,
                         loginSuccess: true,
@@ -161,8 +163,14 @@ exports.createAccount_post = function (req, res) {
                 //check username is exist before
                 Account.find({ 'username': username })
                     .exec(function (err, result) {
-                        if (err) { return res.sendStatus(404) }
+                        if (err) {
+                            var path = './public/uploads/' + req.file.filename;
+                            Image.Delete(path);
+                            return res.sendStatus(404)
+                        }
                         if (result.length == 1) {
+                            var path = './public/uploads/' + req.file.filename;
+                            Image.Delete(path);
                             req.flash('error_msg', 'Tên tài khoảng đã tồn tại');
                             errors = res.locals.getMessages();
                             console.log(errors.error_msg);
@@ -195,6 +203,8 @@ exports.createAccount_post = function (req, res) {
                     status: 'Active'
                 }), req.body.password, function (err, account) {
                     if (err) {
+                        var path = './public/uploads/' + req.file.filename;
+                        Image.Delete(path);
                         console.log('error: ' + err);
                         return res.send(account);
                     }
@@ -206,10 +216,9 @@ exports.createAccount_post = function (req, res) {
                                 console.error(err);
                                 return;
                             }
-                            console.log('new newUser: ' + newUser)
+                            console.log('new newUser: ' + newUser);
+                            res.redirect('/admin/account');
                         });
-
-                        res.redirect('/admin/account');
                     });
                 });
             }

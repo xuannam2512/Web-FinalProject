@@ -1,0 +1,49 @@
+{{#if errors}} 
+    {{#each errors}}
+        <div class="alert alert-danger">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{msg}}
+        </div>
+    {{/each}} 
+{{/if}}
+{{#if showError}}
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{error_msg}}
+    </div>
+{{/if}}
+{{#if showSuccess}}
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{success_msg}}
+    </div>
+{{/if}}
+<form class="modal-content" action="" method="POST" encType="multipart/form-data">
+    <div class="container">
+        <h1>Thêm Nhà Cung Cấp Mới</h1>
+        <p>Làm ơn điền đầy đủ thông tin vào mẫu để tạo tài khoảng.</p>
+        <hr>
+        <label for="myImage">
+            <b>Chọn ảnh</b>
+        </label>
+        <input class="form-control" name="myImage" type="file" onchange="readURL(this);">
+        <br>
+        <img id="imgUser" src="{{img}}" alt="User Image" height="200" width="200">
+        <br><br>
+
+        <label for="name">
+            <b>Tên nhà cung cấp</b>
+        </label>
+        <input class="form-control" type="text" placeholder="Nhập tên nhà cung cấp" name="name" value="{{name}}" required>
+        <br>
+        <label for="info">
+            <b>Thông tin về nhà cung cấp</b>
+        </label>
+        <textarea class="form-control" id="exampleTextarea" rows="5" name="info" 
+        placeholder="Nhập một số thông tin về nhà cung cấp" required>{{info}}</textarea>
+        <br><br>
+        <div class="clearfix">
+            <button type="submit" class="signupbtn btn-lg btn-block">Hoàn Tất</button>
+        </div>
+    </div>
+</form>

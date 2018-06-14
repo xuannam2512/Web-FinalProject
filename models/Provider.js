@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 
 var providerSchema = new Schema({
     name: { type: String, required: true },
-    img: { type: String },
+    imgDisplay: { type: String },
+    imgDelete: { type: String },
     amountOfModel: { type: String, required: true },
     info: { type: String, required: true }
 });

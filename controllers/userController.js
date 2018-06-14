@@ -66,6 +66,8 @@ exports.newUser_post = function(req, res) {
                 var errors = req.validationErrors();
 
                 if (errors) {
+                    var path = './public/uploads/' + req.file.filename;
+                    Image.Delete(path);
                     console.log(errors);
                     return res.render('./admin/user/createUser', {
                         userActive: true,
@@ -89,6 +91,8 @@ exports.newUser_post = function(req, res) {
                 var user = new User(userDetail);
                 user.save(function(err, result) {
                     if (err) {
+                        var path = './public/uploads/' + req.file.filename;
+                        Image.Delete(path);
                         console.error(err);
                         return;
                     }
@@ -235,7 +239,8 @@ exports.deleteUser = function(req, res) {
                         userActive: true, 
                         loginSuccess: true,
                         tables: results,
-                        success: true 
+                        showSuccess: true,
+                        success_msg: 'Xóa thành công'
                     });
                 });
             });

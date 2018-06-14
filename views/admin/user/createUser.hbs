@@ -1,15 +1,24 @@
 {{#if errors}} 
     {{#each errors}}
-        <div class="alert alert-danger">{{msg}}</div>
+        <div class="alert alert-danger">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{msg}}
+        </div>
     {{/each}} 
 {{/if}}
 {{#if showError}}
     {{#each error}}
-        <div class="alert alert-danger">{{this}}</div>
+        <div class="alert alert-danger">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{this}}
+        </div>
     {{/each}}
 {{/if}}
 {{#if showSuccess}}
-    <div class="alert alert-success">{{msg}}</div>
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{msg}}
+    </div>
 {{/if}}
 <form class="modal-content" action="" method="POST" enctype="multipart/form-data">
     <div class="container">
@@ -19,29 +28,34 @@
         <label for="myImage">
             <b>Chọn ảnh đại diện</b>
         </label>
-        <input name="myImage" type="file" onchange="readURL(this);">
-        <img id="imgUser" alt="User Image" height="200" width="200">
+        <input class="form-control" name="myImage" type="file" onchange="readURL(this);">
         <br>
+        <img id="imgUser" alt="User Image" height="200" width="200">
+        <br><br>
 
         <label for="fullname">
             <b>Họ và tên</b>
         </label>
-        <input type="text" placeholder="Nhập họ và tên" name="fullname">
+        <input class="form-control" type="text" placeholder="Nhập họ và tên" name="fullname" required>
+        <br>
 
         <label for="email">
             <b>Email</b>
         </label>
-        <input type="text" placeholder="Nhập địa chỉ Email" name="email">
+        <input class="form-control" type="text" placeholder="Nhập địa chỉ Email" name="email" required>
+        <br>
 
         <label for="tel">
             <b>Số điện thoại</b>
         </label>
-        <input type="text" placeholder="Nhập số điện thoại" name="tel">
+        <input class="form-control" type="text" placeholder="Nhập số điện thoại" name="tel" required>
+        <br>
 
         <label for="address">
             <b>Địa chỉ</b>
         </label>
-        <input type="text" placeholder="Nhập địa chỉ" name="address">
+        <input class="form-control" type="text" placeholder="Nhập địa chỉ" name="address" required>
+        <br>
 
         <div class="clearfix">
             <button type="submit" class="signupbtn btn-lg btn-block">Đăng ký</button>

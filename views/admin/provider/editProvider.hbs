@@ -1,0 +1,49 @@
+{{#if errors}} 
+    {{#each errors}}
+        <div class="alert alert-danger">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{msg}}
+        </div>
+    {{/each}} 
+{{/if}}
+{{#if showError}}
+    <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{error_msg}}
+    </div>
+{{/if}}
+{{#if showSuccess}}
+    <div class="alert alert-success">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{success_msg}}
+    </div>
+{{/if}}
+<form class="modal-content" action="" method="POST" encType="multipart/form-data">
+    <div class="container">
+        <h1>Chỉnh Sửa Thông Tin Nhà Cung Cấp</h1>
+        <hr>
+        <label for="myImage">
+            <b>Chọn ảnh</b>
+        </label>
+        <input class="form-control" name="myImage" type="file" onchange="readURL(this);">
+        <br>
+        <img id="imgUser" src={{#if img}}"{{img}}"{{/if}}"data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" 
+        width="200" height="200" class="rounded">
+        <br><br>
+
+        <label for="name">
+            <b>Tên nhà cung cấp</b>
+        </label>
+        <input class="form-control" type="text" placeholder="Nhập tên nhà cung cấp" name="name" value="{{name}}" required>
+        <br>
+        <label for="info">
+            <b>Thông tin về nhà cung cấp</b>
+        </label>
+        <textarea class="form-control" id="exampleTextarea" rows="5" name="info" 
+        placeholder="Nhập một số thông tin về nhà cung cấp" required>{{info}}</textarea>
+        <br><br>
+        <div class="clearfix">
+            <button type="submit" class="signupbtn btn-lg btn-block">Hoàn Tất</button>
+        </div>
+    </div>
+</form>

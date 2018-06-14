@@ -23,6 +23,14 @@ const upload = multer({
     }
 }).single('myImage')
 
+const uploadArray = multer({
+    storage: storage,
+    limits: { fileSize: 10000000 },
+    fileFilter: function(req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).array('imgs[]', 5);
+
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
