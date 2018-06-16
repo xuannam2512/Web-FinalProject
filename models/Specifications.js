@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 
 var specificationSchema = new Schema({
     mobileID: { type: Schema.ObjectId, ref: 'Mobile', required: true },
-    img: [{ type: String }],
+    imgDisplay: [{ type: String }],
+    imgDelete: [{ type: String }],
     screen: { type: String, required: true },
     operationsystem: { type: String, required: true },
     camerafont: { type: String, required: true },

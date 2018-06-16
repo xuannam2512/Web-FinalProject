@@ -29,7 +29,7 @@ const uploadArray = multer({
     fileFilter: function(req, file, cb) {
         checkFileType(file, cb);
     }
-}).array('imgs[]', 5);
+}).array('myImage', 3);
 
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png/;
@@ -46,3 +46,5 @@ function checkFileType(file, cb) {
 module.exports.Upload = upload;
 
 module.exports.Delete = unlinkAsync;
+
+module.exports.UploadArray = uploadArray;

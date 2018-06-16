@@ -2,6 +2,7 @@ var Imports = require('../models/Import');
 var Provider = require('../models/Provider');
 var Mobile = require('../models/Mobile');
 var Specification = require('../models/Specifications');
+var Image = require('./configUploadImage');
 var async = require('async');
 
 exports.listImports = function (req, res) {
@@ -40,13 +41,13 @@ exports.importDetail = function (req, res) {
 
             async.parallel({
                 mobile: function (callback) {
-                    Mobile.find({'_id': mobiles})
+                    Mobile.find({ '_id': mobiles })
                         .populate('provider')
                         .exec(callback);
                 }
             }, function (err, result) {
                 console.log(result.mobile.length);
-                for(var i = 0; i < result.mobile.length; i++) {
+                for (var i = 0; i < result.mobile.length; i++) {
                     importDetail = {
                         mobile: result.mobile[i],
                         amount: mobileAmounts[i],
@@ -58,7 +59,7 @@ exports.importDetail = function (req, res) {
 
                 res.render('./admin/import/importDetail', {
                     importActive: true,
-                    loginSuccess: true, 
+                    loginSuccess: true,
                     tables: importDetails
                 })
             })
@@ -81,147 +82,222 @@ exports.newImport_Get = function (req, res) {
 
 exports.newImport_Post = function (req, res) {
 
-    async.parallel({
-        provider: function (callback) {
-            Provider.find({ 'name': req.body.providerTxt })
-                .exec(callback);
-        },
-        mobile: function (callback) {
-            Mobile.find({ 'mobileName': req.body.nameModelTxt })
-                .exec(callback);
-        }
-    }, function (err, result) {
-
-        var providers = [];
-        var mobiles = [];
-        var listMobile = [];
-
-        //cap nhat nhung model da co trong co so du lieu
-        for (var i = 0; i < result.mobile.length; i++) {
-            for (var j = 0; j < req.body.nameModelTxt.length; j++) {
-                if (result.mobile[i].mobileName == req.body.nameModelTxt[j]) {
-
-                    listMobile.push(result.mobile[i]);
-
-                    var imported = parseInt(result.mobile[i].imported) + parseInt(req.body.amountTxt[i]);
-                    Mobile.update({ 'mobileName': result.mobile[i].mobileName }, {
-                        imported: imported,
-                        salePrice: req.body.salepricelTxt[i]
-                    }).exec();
-                    break;
-                }
-            }
-        }
-
-        //danh sach cac nha cung cap vua nhap theo dung thu tu
-        for (var i = 0; i < req.body.providerTxt.length; i++) {
-
-            for (var j = 0; j < result.provider.length; j++) {
-
-                if (req.body.providerTxt[i] == result.provider[j].name) {
-                    providers.push(result.provider[j]);
-                    break;
-                }
-            }
-        }
-
-        // cap nhat so luong model cua nha cung cap
-
-        //them dien thoai moi chua co trong co so du lieu
-        for (var i = 0; i < req.body.nameModelTxt.length; i++) {
-            var j;
-            for (j = 0; j < result.mobile.length; j++) {
-                if (result.mobile[j].mobileName == req.body.nameModelTxt[i]) {
-                    break;
-                }
-            }
-            if (j == result.mobile.length) {
-                mobileDetail = {
-                    mobileName: req.body.nameModelTxt[i],
-                    status: 'Con hang',
-                    provider: providers[i],
-                    sold: '0',
-                    imported: req.body.amountTxt[i],
-                    salePrice: req.body.salepricelTxt[i]
-                }
-
-                var newMobile = Mobile(mobileDetail);
-                mobiles.push(newMobile);
-                listMobile.push(newMobile);
-
-                newMobile.save(function (err, result) {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    //console.log('new newMobile: ' + newMobile)
+    Image.UploadArray(req, res, (err) => {
+        if (err) {
+            console.log(err);
+            retrun;
+        } else {
+            if (req.files == undefined) {
+                return res.render('./admin/import/createImport', {
+                    importActive: true,
+                    loginSuccess: true,
+                    showError: true,
+                    error_msg: 'Chưa có ảnh được chọn.'
                 });
-
-                specificationDetail = {
-                    mobileID: newMobile,
-                    screen: req.body.screenTxt[i],
-                    operationsystem: req.body.operationsystemTxt[i],
-                    camerafont: req.body.camerafontTxt[i],
-                    camerabehind: req.body.camerabehindTxt[i],
-                    cpu: req.body.cpuTxt[i],
-                    ram: req.body.ramTxt[i],
-                    memories: req.body.memoriesTxt[i],
-                    memorycard: req.body.memorycardTxt[i],
-                    sim: req.body.simTxt[i]
+            } else {
+                var imgDisplays = [];
+                var imgDeletes = [];
+                for (var i = 0; i < req.files.length; i++) {
+                    imgDisplay = '../../../uploads/' + req.files[i].filename;
+                    imgDelete = './public/uploads/' + req.files[i].filename;
+                    imgDisplays.push(imgDisplay);
+                    imgDeletes.push(imgDelete);
                 }
 
-                var newSpecification = new Specification(specificationDetail);
-                newSpecification.save(function (err, result) {
-                    if (err) {
-                        console.error(err);
-                        return;
+                async.parallel({
+                    provider: function (callback) {
+                        Provider.find({ 'name': req.body.provider })
+                            .exec(callback);
+                    },
+                    mobile: function (callback) {
+                        Mobile.find({ 'mobileName': req.body.mobileName })
+                            .exec(callback);
                     }
-                    //console.log(newSpecification);
-                });
+                }, function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        return res.render('./admin/import/createImport', {
+                            importActive: true,
+                            loginSuccess: true,
+                            showError: true,
+                            error_msg: 'Không lưu được, hãy thử lại'
+                        });
+                    }
+                    //neu da co trong du lieu thi se cap nhat
+                    var amountOfModel = parseInt(result.provider[0].amountOfModel) + 1;
+                    var provider = result.provider;                
+
+                    if (result.mobile.length > 0) {
+                        var imported = parseInt(result.mobile[0].imported) + parseInt(req.body.amount);
+                        var mobileID = result.mobile[0]._id;
+                        var mobile = result.mobile[0];
+                        async.series({
+                            updateMobile: function (callback) {
+                                Mobile.update({ 'mobileName': req.body.mobileName }, {
+                                    imported: imported,
+                                    salePrice: req.body.salePrice
+                                }).exec(callback);
+                            },
+                            specification: function(callback) {
+                                Specification.find({ 'mobileID': mobileID} )
+                                .exec(callback);
+                            },
+                            updateSpecification: function (callback) {
+                                Specification.update({ 'mobileID': mobileID }, {
+                                    imgDisplay: imgDisplays,
+                                    imgDelete: imgDeletes,
+                                    screen: req.body.screen,
+                                    operationsystem: req.body.operator,
+                                    camerafont: req.body.frontCamera,
+                                    camerabehind: req.body.behindCamera,
+                                    cpu: req.body.cpu,
+                                    ram: req.body.ram,
+                                    memories: req.body.memories,
+                                    memorycard: req.body.memoriesCard,
+                                    sim: req.body.sim
+                                }).exec(callback);
+                            }
+                        }, function (err, result) {
+                            if (err) {
+                                console.log(err);
+                                return res.render('./admin/import/createImport', {
+                                    loginSuccess: true,
+                                    importActive: true,
+                                    showError: true,
+                                    error_msg: 'Lưu thất bại hãy thử lại!'
+                                });
+                            }
+
+                            //delete old image
+                            var oldImageDelete = result.specification[0].imgDelete;
+                            console.log(oldImageDelete);
+                            for(var i = 0; i < oldImageDelete.length; i++) {
+                                Image.Delete(oldImageDelete[i]);
+                            }
+
+                            importDetail = {
+                                mobileImported: mobile,
+                                mobileAmount: req.body.amount,
+                                mobilePrice: req.body.importPrice,
+                                date: Date.now()
+                            }
+
+                            var newImport = Imports(importDetail);
+                            newImport.save(function (err, result) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.render('./admin/import/createImport', {
+                                        importActive: true,
+                                        loginSuccess: true,
+                                        showError: true,
+                                        error_msg: 'Không lưu được, hãy thử lại'
+                                    });
+                                }
+                                console.log(result);
+                                res.render('./admin/import/createImport', {
+                                    importActive: true,
+                                    loginSuccess: true,
+                                    showSuccess: true,
+                                    success_msg: 'Nhập hàng thành công'
+                                })
+                            });
+                        })
+                    } else {
+                        var mobileName = req.body.mobileName;
+                        var upperMobileName = mobileName.toUpperCase();
+                        mobileDetail = {
+                            mobileName: upperMobileName,
+                            provider: provider[0],
+                            sold: '0',
+                            imported: req.body.amount,
+                            status: 'Con hang',
+                            salePrice: req.body.salePrice
+                        }
+                        var mobile = new Mobile(mobileDetail);
+                        console.log(mobile.provider);
+                        mobile.save(function (err, result) {
+                            if (err) {
+                                console.log(err);
+                                return res.render('./admin/import/createImport', {
+                                    importActive: true,
+                                    loginSuccess: true,
+                                    showError: true,
+                                    error_msg: 'Không lưu được, hãy thử lại'
+                                });
+                            }
+
+                            specificationDetail = {
+                                mobileID: mobile,
+                                imgDisplay: imgDisplays,
+                                imgDelete: imgDeletes,
+                                screen: req.body.screen,
+                                operationsystem: req.body.operator,
+                                camerafont: req.body.frontCamera,
+                                camerabehind: req.body.behindCamera,
+                                cpu: req.body.cpu,
+                                ram: req.body.ram,
+                                memories: req.body.memories,
+                                memorycard: req.body.memoriesCard,
+                                sim: req.body.sim
+                            }
+                            var newSpecification = new Specification(specificationDetail);
+                            newSpecification.save(function (err, result) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.render('./admin/import/createImport', {
+                                        importActive: true,
+                                        loginSuccess: true,
+                                        showError: true,
+                                        error_msg: 'Không lưu được, hãy thử lại'
+                                    });
+                                }
+
+                                importDetail = {
+                                    mobileImported: mobile,
+                                    mobileAmount: req.body.amount,
+                                    mobilePrice: req.body.importPrice,
+                                    date: Date.now()
+                                }
+
+                                var newImport = Imports(importDetail);
+                                newImport.save(function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.render('./admin/import/createImport', {
+                                            importActive: true,
+                                            loginSuccess: true,
+                                            showError: true,
+                                            error_msg: 'Không lưu được, hãy thử lại'
+                                        });
+                                    }
+                                    console.log(result);
+                                    Provider.update({'name': req.body.provider}, {
+                                        amountOfModel: amountOfModel
+                                    }).exec(function(err, result) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.render('./admin/import/createImport', {
+                                                importActive: true,
+                                                loginSuccess: true,
+                                                showError: true,
+                                                error_msg: 'Không lưu được, hãy thử lại'
+                                            });
+                                        }
+                                        res.render('./admin/import/createImport', {
+                                            importActive: true,
+                                            loginSuccess: true,
+                                            showSuccess: true,
+                                            success_msg: 'Nhập hàng thành công'
+                                        })
+                                    });
+                                });
+                            });
+                        });
+                    }
+                })
             }
         }
-
-        //cap nhat lai so luong model cua nha cung cap
-
-        for (var i = 0; i < result.provider.length; i++) {
-            var count = 0;
-            var amountOfModel = parseInt(result.provider[i].amountOfModel);
-            for (var j = 0; j < mobiles.length; j++) {
-                if (mobiles[j].provider._id == result.provider[i]._id) {
-                    count = count + 1;
-                }
-            }
-
-            Provider.findByIdAndUpdate(result.provider[i]._id, {
-                amountOfModel: amountOfModel + count
-            }).exec();
-        }
-
-        //tao new import
-        var totalPrice = 0;
-        for (var i = 0; i < req.body.importpricelTxt.length; i++) {
-            totalPrice = totalPrice + parseInt(req.body.importpricelTxt[i]);
-        }
-
-        importDetail = {
-            mobileImported: listMobile,
-            mobileAmount: req.body.amountTxt,
-            mobilePrice: req.body.importpricelTxt,
-            date: Date.now(),
-            totalPrice: totalPrice
-        }
-
-        var newImport = Imports(importDetail);
-        newImport.save(function (err, result) {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            console.log(newImport);
-        });
-
-        res.redirect('/admin/import/importMobile');
-    });
+    })
 }
 
 exports.editImport = function (req, res) {

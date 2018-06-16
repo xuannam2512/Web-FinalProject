@@ -1,90 +1,142 @@
-<div class="container">
-    <form id="contact" action="" method="POST">
-        <h2 class="text-center">Đơn Nhập Hàng</h2>
-        <p><i>Một lần nhập hàng có thể nhập nhiều loại sản phẩm khác nhau</i></p>
-        <br>
-        <br> {{!--
-        <fieldset>
-            <input placeholder="Your name" class="form-control" type="text" tabindex="1" name="nameTxt" required autofocus>
-        </fieldset> --}}
-        <fieldset>
-            <div data-role="dynamic-fields" style="margin-left: 4px;">
-                <h3 class="text-center"><b>Sản Phẩm Đầu Tiên</b></h3>
-                <div class="form-inline form-row">
-                    <select name="providerTxt" class="selectpicker custom-select mb-2 mr-sm-2 col-sm-12 form-control" id="inputGroupSelect01">
-                        <option selected>Chọn nhà cung cấp...</option>
-                        {{#each list}}
-                        <option>{{this.name}}</option>
-                        {{/each}}
-                    </select>
-                    <input name="nameModelTxt" type="text" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập tên sản phẩm"
-                        required>
-                    <input name="amountTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập số lượng"
-                        required>
-                    <input name="importpricelTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập giá nhập sản phẩm"
-                        required>
-                    <input name="salepricelTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập giá bán sản phảm"
-                        required>
-
-                    <label class="mb-2 mr-sm-2 col-sm-12">Chi tiết sản phẩm</label>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="screenTxt" placeholder="Màn hình" type="text" tabindex="1" required autofocus>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="operationsystemTxt" placeholder="Hệ điều hành" type="text" tabindex="2" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="camerafontTxt" placeholder="Camera trước" type="text" tabindex="3" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="camerabehindTxt" placeholder="Camera sau" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="cpuTxt" placeholder="CPU" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="ramTxt" placeholder="RAM" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="memoriesTxt" placeholder="Bộ nhớ trong" type="text" tabindex="4" value='{{memories}}' required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="memorycardTxt" placeholder="Thẻ nhớ ngoài" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="simTxt" placeholder="SIM" type="text" tabindex="4" required>
-                </div>
-                <!-- /div.form-inline -->
-            </div>
-        </fieldset>
-        <br>
-        <br>
-        <fieldset>
-            <div data-role="dynamic-fields" style="margin-left: 4px;">
-                <h3 class="text-center"><b>Sản Phẩm Tiếp Theo</b></h3>
-                <div class="form-inline form-row">
-                     <select name="providerTxt" class="selectpicker custom-select mb-2 mr-sm-2 col-sm-12 form-control" id="inputGroupSelect01">
-                        <option selected>Chọn một nhà cung cấp...</option>
-                        {{#each list}}
-                        <option>{{this.name}}</option>
-                        {{/each}}
-                    </select>
-                    <input name="nameModelTxt" type="text" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập tên sản phẩn"
-                        required>
-                    <input name="amountTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập số lượng sản phẩm"
-                        required>
-                    <input name="importpricelTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập giá nhập sản phẩm"
-                        required>
-                    <input name="salepricelTxt" type="number" class="form-control mb-2 mr-sm-0 col-sm-6" id="field-name" placeholder="Nhập giá bán sản phẩm"
-                        required>
-
-                    <label class="mb-2 mr-sm-2 col-sm-12">Chỉ tiết sản phẩm</label>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="screenTxt" placeholder="Màn hình" type="text" tabindex="1" required autofocus>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="operationsystemTxt" placeholder="Hệ điều hành" type="text" tabindex="2" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="camerafontTxt" placeholder="Camera trước" type="text" tabindex="3" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="camerabehindTxt" placeholder="Camera sau" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="cpuTxt" placeholder="CPU" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="ramTxt" placeholder="RAM" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="memoriesTxt" placeholder="Bộ nhớ trong" type="text" tabindex="4" value='{{memories}}' required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="memorycardTxt" placeholder="Thẻ nhớ ngoài" type="text" tabindex="4" required>
-                    <input class="form-control mb-2 mr-sm-0 col-sm-6" name="simTxt" placeholder="SIM" type="text" tabindex="4" required>
-
-                    <button class="btn btn-sm btn-danger  mb-2 col-sm-1" data-role="remove">
-                        <i class="fa fa-minus"></i>
-                    </button>
-                    <button class="btn btn-sm btn-primary  mb-2 col-sm-1" data-role="add">
-                        <i class="fa fa-plus"></i>
-                    </button>
-                </div>
-                <!-- /div.form-inline -->
-            </div>
-        </fieldset>
-        <br>
-        <br>
-        <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Hoàn Tất</button>
-        </fieldset>
-    </form>
+{{#if errors}} {{#each errors}}
+<div class="alert alert-danger">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{msg}}
 </div>
+{{/each}} {{/if}} {{#if showError}}
+<div class="alert alert-danger">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{error_msg}}
+</div>
+{{/if}} {{#if showSuccess}}
+<div class="alert alert-success">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{success_msg}}
+</div>
+{{/if}}
+<form id="contact" class="modal-content" action="" method="POST" encType="multipart/form-data">
+    <div class="container">
+        <h1>Nhập Đơn Hàng</h1>
+        <p>Làm ơn điền đầy đủ thông tin vào mẫu để thêm đơn hàng.</p>
+        <hr>
+        <br>
+        <div data-role="dynamic-fields">
+            <div class="product">
+                <label for="provider">
+                <b>Chọn nhà cung cấp</b>
+            </label>
+            <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="provider">
+                <option selected>Nhấp để chọn nhà cung cấp...</option>
+                {{#each list}}
+                <option>{{this.name}}</option>
+                {{/each}}
+            </select>
+            <br>
+            <br>
+            <label for="mobileName">
+                <b>Tên sản phẩm</b>
+            </label>
+            <input class="form-control" type="text" placeholder="Nhập tên tên sản phẩm" name="mobileName" value="{{mobileName}}" required>
+            <br>
+
+            <label for="myImage">
+                <b>Chọn ảnh</b>
+            </label>
+            <input id="images" class="form-control" name="myImage" type="file" onchange="preview_images();" multiple>
+            <br>
+            <div class="row" id="image_preview">
+                <img id="imgUser1" class="col-md-3" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" width="200" height="200" class="rounded">
+                <img id="imgUser2" class="col-md-3" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" width="200" height="200" class="rounded">
+                <img id="imgUser3" class="col-md-3" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" width="200" height="200" class="rounded">
+            </div>
+            <br>
+            <br>
+
+            <label for="amount">
+                <b>Số lượng sản phẩm</b>
+            </label>
+            <input type="number" class="form-control" placeholder="Nhập số lượng sản phẩm" name="amount" required>
+            <br>
+
+            <label for="importPrice">
+                <b>Nhập giá nhập sản phẩm</b>
+            </label>
+            <input type="number" class="form-control" placeholder="Nhập giá nhập sản phẩm" name="importPrice" required>
+            <br>
+
+            <label for="salePrice">
+                <b>Nhập giá bán sản phẩm</b>
+            </label>
+            <input type="number" class="form-control" placeholder="Nhập giá bán sản phẩm" name="salePrice" required>
+            <br>
+            <hr>
+            <br>
+
+            <h5>
+                <i>Chi tiết sản phẩm</i>
+            </h5>
+            <br>
+
+            <label for="screen">
+                <b>Màn hình</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông tin màn hình" name="screen">
+            <br>
+
+            <label for="operator">
+                <b>Hệ điều hành</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập tên hệ điều hành" name="operator">
+            <br>
+
+            <label for="frontCamera">
+                <b>Camera trước</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông số camera trước" name="frontCamera">
+            <br>
+
+            <label for="behindCamera">
+                <b>Camera sau</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông số camera sau" name="behindCamera">
+            <br>
+
+            <label for="cpu">
+                <b>CPU</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập tên CPU" name="cpu">
+            <br>
+
+            <label for="ram">
+                <b>RAM</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông số ram" name="ram">
+            <br>
+
+            <label for="memories">
+                <b>Bộ nhớ trong</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông tin bộ nhớ trong" name="memories">
+            <br>
+
+            <label for="memoriescard">
+                <b>Thẻ nhớ</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông tin thẻ nhớ" name="memoriesCard">
+            <br>
+
+            <label for="sim">
+                <b>SIM</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập thông số sim" name="sim">
+            <br>
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <div class="clearfix">
+            <button type="submit" class="signupbtn btn-lg btn-block">Hoàn Tất</button>
+        </div>
+    </div>
+</form>
