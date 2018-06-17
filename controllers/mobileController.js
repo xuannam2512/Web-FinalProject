@@ -2,6 +2,7 @@ var Mobile = require('../models/Mobile');
 var Provider = require('../models/Provider');
 var Specification = require('../models/Specifications');
 var Comments = require('../models/Comment');
+var Image = require('./configUploadImage');
 var async = require('async');
 
 exports.listMobile = function (req, res) {
@@ -43,6 +44,9 @@ exports.mobileDetail = function (req, res) {
             mobileActive: true,
             loginSuccess: true,
             title: results.mobile.mobileName,
+            img1: results.specification[0].imgDisplay[0],
+            img2: results.specification[0].imgDisplay[1],
+            img3: results.specification[0].imgDisplay[2],
             screen: results.specification[0].screen,
             operatorsystem: results.specification[0].operationsystem,
             camerafont: results.specification[0].camerafont,
@@ -77,6 +81,9 @@ exports.mobileEdit_Get = function(req, res) {
             loginSuccess: true,
             title: result.mobile.mobileName,
             mobileName: result.mobile.mobileName,
+            img1: result.specification[0].imgDisplay[0],
+            img2: result.specification[0].imgDisplay[1],
+            img3: result.specification[0].imgDisplay[2],
             salePrice: result.mobile.salePrice,
             provider: result.mobile.provider.name,
             screen: result.specification[0].screen,
@@ -94,50 +101,119 @@ exports.mobileEdit_Get = function(req, res) {
 
 exports.mobileEdit_Post = function(req, res) {
 
-    async.parallel({
-        mobile: function(callback) {
-            Mobile.findByIdAndUpdate(req.params.id, {
-                mobileName: req.body.mobileNameTxt,
-                salePrice: req.body.salePriceTxt
-            }).exec(callback);
-        },
-        specification: function(callback) {
-            Specification.findOneAndUpdate({'mobileID': req.params.id}, {
-                screen: req.body.screenTxt,
-                operationsystem: req.body.operationsystemTxt,
-                camerafont: req.body.camerafontTxt,
-                camerabehind: req.body.camerabehindTxt,
-                cpu: req.body.cpuTxt,
-                ram: req.body.ramTxt,
-                memories: req.body.memoriesTxt,
-                memorycard: req.body.memorycardTxt,
-                sim: req.body.simTxt
-            }).populate('mobileID').exec(callback);
-        }
-    }, function(err, result, next) {
+    Image.UploadArray(req, res, (err) => {
         if(err) {
-            return next(err);
-        }
+            console.log(err);
+            return res.render('./admin/mobile/editMobile', {
+                mobileActive: true,
+                loginSuccess: true,
+                showError: true,
+                error_msg: 'Lỗi, không thể upload ảnh, hãy thử lại!'
+            });
+        } else {
+            if(req.files == undefined) {
+                return res.render('./admin/mobile/editMobile', {
+                    mobileActive: true,
+                    loginSuccess: true,
+                    title: req.body.mobileName,
+                    mobileName: req.body.mobileName,
+                    salePrice: req.body.salePrice,
+                    screen: req.body.screen,
+                    operationsystem: req.body.operator,
+                    camerafont: req.body.frontCamera,
+                    camerabehind: req.body.behindCamera,
+                    cpu: req.body.cpu,
+                    ram: req.body.ram,
+                    memories: req.body.memories, 
+                    memorycard: req.body.memoriesCard,
+                    sim: req.body.sim,
+                    showError: true,
+                    error_msg: 'Chưa có hình được chọn!'
+                });
+            } else {
+                var imgDisplays = [];
+                var imgDeletes = [];
+                var nameMobile = req.body.mobileName;
+                var upperNameMobile = nameMobile.toUpperCase();
+                for (var i = 0; i < req.files.length; i++) {
+                    imgDisplay = '../../../uploads/' + req.files[i].filename;
+                    imgDelete = './public/uploads/' + req.files[i].filename;
+                    imgDisplays.push(imgDisplay);
+                    imgDeletes.push(imgDelete);
+                }
 
-        res.render('./admin/mobile/editMobile', {
-            mobileActive: true,
-            loginSuccess: true,
-            success: true,
-            title: req.body.mobileNameTxt,
-            mobileName: req.body.mobileNameTxt,
-            salePrice: req.body.salePriceTxt,
-            screen: req.body.screenTxt,
-            operationsystem: req.body.operationsystemTxt,
-            camerafont: req.body.camerafontTxt,
-            camerabehind: req.body.camerabehindTxt,
-            cpu: req.body.cpuTxt,
-            ram: req.body.ramTxt,
-            memories: req.body.memoriesTxt, 
-            memorycard: req.body.memorycardTxt,
-            sim: req.body.simTxt,
-            success: true
-        });
-    });
+                //delete old image
+                async.parallel({
+                    mobile: function(callback) {
+                        Mobile.findByIdAndUpdate(req.params.id, {
+                            mobileName: upperNameMobile,
+                            salePrice: req.body.salePrice
+                        }).exec(callback);
+                    },
+                    specification: function(callback) {
+                        Specification.findOneAndUpdate({'mobileID': req.params.id}, {
+                            screen: req.body.screen,
+                            operationsystem: req.body.operator,
+                            camerafont: req.body.frontCamera,
+                            camerabehind: req.body.behindCamera,
+                            cpu: req.body.cpu,
+                            ram: req.body.ram,
+                            memories: req.body.memories,
+                            memorycard: req.body.memoriesCard,
+                            sim: req.body.sim
+                        }).populate('mobileID').exec(callback);
+                    }
+                }, function(err, result, next) {
+                    if(err) {
+                        return next(err);
+                    }
+                    //delete old image
+                    var oldImageDelete = result.specification.imgDelete;
+                    console.log(oldImageDelete);
+                    for (var i = 0; i < oldImageDelete.length; i++) {
+                        Image.Delete(oldImageDelete[i]);
+                    }
+
+                    Specification.findOneAndUpdate( {'mobileID': req.params.id }, {
+                        imgDisplay: imgDisplays,
+                        imgDelete: imgDeletes
+                    }).exec(function(err, result) {
+                        if(err) {
+                            console.log(err);
+                            return res.render('./admin/mobile/editMobile', {
+                                mobileActive: true,
+                                loginSuccess: true,
+                                showError: true,
+                                error_msg: 'Lỗi không update được ảnh.'
+                            });
+                        }
+
+                        res.render('./admin/mobile/editMobile', {
+                            mobileActive: true,
+                            loginSuccess: true,
+                            title: req.body.mobileName,
+                            mobileName: req.body.mobileName,
+                            img1: imgDisplays[0],
+                            img2: imgDisplays[1],
+                            img3: imgDisplays[2],
+                            salePrice: req.body.salePrice,
+                            screen: req.body.screen,
+                            operationsystem: req.body.operator,
+                            camerafont: req.body.frontCamera,
+                            camerabehind: req.body.behindCamera,
+                            cpu: req.body.cpu,
+                            ram: req.body.ram,
+                            memories: req.body.memories, 
+                            memorycard: req.body.memoriesCard,
+                            sim: req.body.sim,
+                            showSuccess: true,
+                            success_msg: 'Chỉnh sửa thành công!'
+                        });
+                    })
+                });
+            }
+        }
+    })
 }
 
 exports.setStatus = function(req, res) {

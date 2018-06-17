@@ -11,12 +11,32 @@ exports.listProvider = function (req, res) {
                 console.error(err);
                 return;
             }
-            console.log(results);
-            res.render('./admin/provider/provider', {
-                providerActive: true,
-                loginSuccess: true,
-                tables: results
-            });
+            var flashMessages = res.locals.getMessages();
+            if(flashMessages.success_msg) {
+                return res.render('./admin/provider/provider', {
+                    providerActive: true,
+                    loginSuccess: true,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg,
+                    tables: results
+                });
+            }
+
+            if(flashMessages.error_msg) {
+                return res.render('./admin/provider/provider', {
+                    providerActive: true,
+                    loginSuccess: true,
+                    tables: results,
+                    showError: true,
+                    error_msg: flashMessages.error_msg
+                });
+            } else {
+                return res.render('./admin/provider/provider', {
+                    providerActive: true,
+                    loginSuccess: true,
+                    tables: results
+                });
+            }
         });
 }
 
@@ -265,27 +285,17 @@ exports.deleteProvider = function (req, res) {
 
                             //delete image in database
                             Image.Delete(path);
+                            req.flash('success_msg', 'Xóa thành công.');
 
-                            res.render('./admin/provider/provider', {
-                                providerActive: true,
-                                loginSuccess: true,
-                                showSuccess: true,
-                                success_msg: 'Xóa thành công!',
-                                tables: results
-                            });
+                            res.redirect('/admin/provider');
                         })
                 })
             } else {
                 console.log('can not delete');
                 Provider.find({})
                     .exec(function (err1, results) {
-                        res.render('./admin/provider/provider', {
-                            providerActive: true,
-                            loginSuccess: true,
-                            tables: results,
-                            showError: true,
-                            error_msg: 'Không thể xóa nhà cung cấp này do số lượng sản phẩm lớn hơn 0.'
-                        });
+                        req.flash('error_msg', 'Xóa thất bại hãy thử lại.');
+                        res.redirect('/admin/provider');
                     })
             }
         });

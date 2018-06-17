@@ -1,14 +1,18 @@
 {{#if showError}}
+    {{#each error_msg}}
     <div class="alert alert-danger">
+        {{this}}
         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-        {{error_msg}}
     </div>
+    {{/each}}
 {{/if}}
 {{#if showSuccess}}
+    {{#each success_msg}}
     <div class="alert alert-success">
+        {{this}}
         <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-        {{success_msg}}
     </div>
+    {{/each}}
 {{/if}}
 <div class="panel panel-default">
     <div class="panel-heading">

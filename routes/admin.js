@@ -16,64 +16,69 @@ router.get('/', accountController.loginAdmin_get);
 
 router.post('/', accountController.loginAdmin_post);
 
+router.get('/logout', accountController.logout);
 //user
-router.get('/user', userController.listUser);
+router.get('/user', isLoggedIn, userController.listUser);
 
-router.get('/user/:id/edit', userController.editUser_get);
+router.get('/user/:id/edit', isLoggedIn, userController.editUser_get);
 
-router.post('/user/:id/edit', userController.editUser_post);
+router.post('/user/:id/edit', isLoggedIn, userController.editUser_post);
 
-router.get('/user/:id/delete', userController.deleteUser);
+router.get('/user/:id/delete', isLoggedIn, userController.deleteUser);
 
-router.get('/user/newuser', userController.newUser_get);
+router.get('/user/newuser', isLoggedIn, userController.newUser_get);
 
-router.post('/user/newuser', userController.newUser_post);
+router.post('/user/newuser', isLoggedIn, userController.newUser_post);
 
 //account
-router.get('/account', accountController.listAccount);
+router.get('/account', isLoggedIn, accountController.listAccount);
 
-router.get('/account/newaccount', accountController.createAccount_get);
+router.post('/account', function(req, res) {
+    res.send('khoa tai khoang');
+})
+
+router.get('/account/newaccount', isLoggedIn, accountController.createAccount_get);
 
 router.post('/account/newaccount', accountController.createAccount_post);
 
-router.get('/account/:id', accountController.accountDetail);
+router.get('/account/:id', isLoggedIn, accountController.accountDetail);
 
-router.get('/account/:id/delete', accountController.deleteAccount);
+router.get('/account/:id/delete', isLoggedIn, accountController.deleteAccount);
 
 //provider
-router.get('/provider', providerController.listProvider);
+router.get('/provider', isLoggedIn, providerController.listProvider);
 
-router.get('/provider/newprovider', providerController.newProvider_get);
+router.get('/provider/newprovider', isLoggedIn, providerController.newProvider_get);
 
-router.post('/provider/newprovider', providerController.newProvider_post);
+router.post('/provider/newprovider', isLoggedIn, providerController.newProvider_post);
 
-router.get('/provider/:id', providerController.providerDetail);
+router.get('/provider/:id', isLoggedIn, providerController.providerDetail);
 
-router.get('/provider/:id/edit', providerController.editProvider_Get);
+router.get('/provider/:id/edit', isLoggedIn, providerController.editProvider_Get);
 
-router.post('/provider/:id/edit', providerController.editProvider_Post);
+router.post('/provider/:id/edit', isLoggedIn, providerController.editProvider_Post);
 
-router.get('/provider/:id/delete', providerController.deleteProvider);
+router.get('/provider/:id/delete', isLoggedIn, providerController.deleteProvider);
 
 //mobile
-router.get('/mobile', mobileController.listMobile);
+router.get('/mobile', isLoggedIn, mobileController.listMobile);
 
-router.get('/mobile/:id', mobileController.mobileDetail);
+router.get('/mobile/:id', isLoggedIn, mobileController.mobileDetail);
 
-router.get('/mobile/:id/edit', mobileController.mobileEdit_Get);
+router.get('/mobile/:id/edit', isLoggedIn, mobileController.mobileEdit_Get);
 
-router.post('/mobile/:id/edit', mobileController.mobileEdit_Post);
+router.post('/mobile/:id/edit', isLoggedIn, mobileController.mobileEdit_Post);
 
-router.get('/mobile/:id/status', mobileController.setStatus);
+router.get('/mobile/:id/status', isLoggedIn, mobileController.setStatus);
 
 //import mobile
-router.get('/importMobile', importController.listImports);
+router.get('/importMobile', isLoggedIn, importController.listImports);
 
-router.get('/importMobile/newImport', importController.newImport_Get);
+router.get('/importMobile/newImport', isLoggedIn, importController.newImport_Get);
 
-router.post('/importMobile/newImport', importController.newImport_Post);
+router.post('/importMobile/newImport', isLoggedIn, importController.newImport_Post);
 
-router.get('/importMobile/:id', importController.importDetail);
+router.get('/importMobile/:id', isLoggedIn, importController.importDetail);
 
 //demo upload
 router.get('/upload', uploadController.upload_get);
@@ -81,3 +86,10 @@ router.get('/upload', uploadController.upload_get);
 router.post('/upload', uploadController.upload_post);
 
 module.exports = router;
+
+//route middleware to ensure user is logged in
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated())
+        return next();
+    res.redirect('/admin');
+}

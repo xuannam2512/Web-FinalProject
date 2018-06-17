@@ -1,64 +1,93 @@
+{{#if errors}} {{#each errors}}
+<div class="alert alert-danger">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{msg}}
+</div>
+{{/each}} {{/if}} {{#if showError}}
+<div class="alert alert-danger">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{error_msg}}
+</div>
+{{/if}} {{#if showSuccess}}
+<div class="alert alert-success">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{success_msg}}
+</div>
+{{/if}}
 <div class="container">
-    <form id="contact" action="" method="post">
+    <form id="contact" action="" method="post" enctype="multipart/form-data">
         <h3 style="text-align: center; font-weight: bold;">{{title}}</h3>
         <br><br>
         <fieldset>
             <label for="">Name Model</label>
-            <input name="mobileNameTxt" placeholder="Name Model" type="text" tabindex="1" value='{{mobileName}}' required autofocus>
+            <input class="form-control" name="mobileName" placeholder="Name Model" type="text" tabindex="1" value='{{mobileName}}' required autofocus>
+        </fieldset>
+        <br>
+        <fieldset>
+            <label for="myImage">
+                <b>Chọn ảnh</b>
+            </label>
+            <input id="images" class="form-control" name="myImage" type="file" onchange="preview_images();" multiple>
+            <br>
+            <div class="row" id="image_preview">
+                <img id="imgUser1" class="col-md-3" src="{{img1}}" width="200" height="200" class="rounded">
+                <img id="imgUser2" class="col-md-3" src="{{img2}}" width="200" height="200" class="rounded">
+                <img id="imgUser3" class="col-md-3" src="{{img3}}" width="200" height="200" class="rounded">
+            </div>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Sale Price</label>
-            <input name="salePriceTxt" placeholder="Sale Price" type="text" tabindex="1" value='{{salePrice}}' required autofocus>
+            <input name="salePrice" class="form-control" placeholder="Sale Price" type="text" tabindex="1" value='{{salePrice}}' required autofocus>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Screen</label>
-            <input name="screenTxt" placeholder="Screen" type="text" tabindex="1" value='{{screen}}' required autofocus>
+            <input class="form-control" name="screen" placeholder="Screen" type="text" tabindex="1" value='{{screen}}' required autofocus>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Operation System</label>
-            <input name="operationsystemTxt" placeholder="Operation System" type="text" tabindex="2" value='{{operationsystem}}' required>
+            <input class="form-control" name="operator" placeholder="Operation System" type="text" tabindex="2" value='{{operationsystem}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Camera Front</label>
-            <input name="camerafontTxt" placeholder="Camera Front" type="text" tabindex="3" value='{{camerafont}}' required>
+            <input class="form-control" name="frontCamera" placeholder="Camera Front" type="text" tabindex="3" value='{{camerafont}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Camera Behind</label>
-            <input name="camerabehindTxt" placeholder="Camera Behind" type="text" tabindex="4" value='{{camerabehind}}' required>
+            <input class="form-control" name="behindCamera" placeholder="Camera Behind" type="text" tabindex="4" value='{{camerabehind}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">CPU</label>
-            <input name="cpuTxt" placeholder="CPU" type="text" tabindex="4" value='{{cpu}}' required>
+            <input class="form-control" name="cpu" placeholder="CPU" type="text" tabindex="4" value='{{cpu}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">RAM</label>
-            <input name="ramTxt" placeholder="RAM" type="text" tabindex="4" value='{{ram}}' required>
+            <input class="form-control" name="ram" placeholder="RAM" type="text" tabindex="4" value='{{ram}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Memories</label>
-            <input name="memoriesTxt" placeholder="Memories" type="text" tabindex="4" value='{{memories}}' required>
+            <input class="form-control" name="memories" placeholder="Memories" type="text" tabindex="4" value='{{memories}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">Memory Card</label>
-            <input name="memorycardTxt" placeholder="Memory Card" type="text" tabindex="4" value='{{memorycard}}' required>
+            <input class="form-control" name="memoriesCard" placeholder="Memory Card" type="text" tabindex="4" value='{{memorycard}}' required>
         </fieldset>
         <br>
         <fieldset>
             <label for="">SIM</label>
-            <input name="simTxt" placeholder="SIM" type="text" tabindex="4" value='{{sim}}' required>
+            <input class="form-control" name="sim" placeholder="SIM" type="text" tabindex="4" value='{{sim}}' required>
         </fieldset>
         <br>
         <fieldset>            
-            <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Submit</button>
+            <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Hoàn Tất</button>
         </fieldset>
     </form>
 </div>

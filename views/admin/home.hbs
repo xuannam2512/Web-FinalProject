@@ -1,15 +1,14 @@
-{{#if checkLogin}}
-{{#if showError}}
-    {{#each errors}}
-        <div class="alert alert-danger">{{this}}</div>
-    {{/each}}
-{{/if}}
-
-{{#if showSuccess}}
-    {{#each success_msg}}
-    <div class="alert alert-success">{{this}}</div>
-    {{/each}}
-{{/if}}
+{{#if checkLogin}} {{#if showError}} {{#each error_msg}}
+<div class="alert alert-danger">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}} {{#if showSuccess}} {{#each success_msg}}
+<div class="alert alert-success">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}}
 <div class="container py-5">
     <div class="row">
         <div class="col-md-12">
@@ -58,7 +57,118 @@
     <!--/row-->
 </div>
 <!--/container-->
-{{else}}
-<div class="alert alert-danger">{{msg}}</div>
-<h2>DASH BOARD</h2>
+{{else}} {{#if showError}} {{#each error_msg}}
+<div class="alert alert-danger">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}} {{#if showSuccess}} {{#each success_msg}}
+<div class="alert alert-success">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}}
+<div class="text-center text-primary">
+    <h1>Trang Chủ</h1>
+</div>
+<br>
+<br>
+<hr>
+<div class="rounded bg-light border container">
+    <div class="text-primary" style="padding: 15px;">
+        <h3>Thông tin admin</h3>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-5 text-center">
+            <img src={{#if img}} "{{img}}"{{/if}}
+                "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="" width="200" height="200">
+        </div>
+        <div class="col-sm-6">
+            <ul class="list-group text-primary font-weight-bold">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Tên Đăng Nhập</span>
+                    <span>{{username}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Họ và tên</span>
+                    <span>{{fullname}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Email</span>
+                    <span>{{email}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Tel</span>
+                    <span>{{tel}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>Địa chỉ</span>
+                    <span>{{address}}</span>
+                </li>
+            </ul>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+<br>
+<hr>
+
+<div class="rounded bg-light border container">
+    <div class="text-primary" style="padding: 15px;">
+        <h3>Một số chức năng chính</h3>
+    </div>
+    <div class="row">
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-info text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Thông Tin</h5>
+                <p class="card-text">Quản lí toàn bộ thông tin về khách hàng cũng như thông tin cá nhân của các tài khoảng.</p>
+                <a href="/admin/user" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-user text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Tài Khoản</h5>
+                <p class="card-text">Quản lí toàn bộ tài khoảng đã đăng ký.</p>
+                <a href="/admin/account" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-parachute-box text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Nhà Cung Cấp</h5>
+                <p class="card-text">Quản lí thông tin của các nhà cung cấp sản phẩm cũng như sản phẩm của mỗi nhà cung cấp.</p>
+                <a href="/admin/provider" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-mobile text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Sản Phẩm</h5>
+                <p class="card-text">Quản lí thông tin chi cơ bản của toàn bộ sản phẩm cũng như chi tiết của từng loại.</p>
+                <a href="/admin/mobile" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-keyboard text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Nhập</h5>
+                <p class="card-text">Quản lí toàn bộ thông tin của việc nhập các sản phẩm cho cửa hàng.</p>
+                <a href="/admin/importMobile" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+        <div class="card mb-4 mr-sm-5 ml-sm-4" style="width: 18rem;">
+            <i class="fas fa-shopping-cart text-primary" style="font-size: 40px; padding: 20px;"></i>
+            <div class="card-body">
+                <h5 class="card-title text-primary">QL Bán</h5>
+                <p class="card-text">Quản lí toàn bộ thông tin về việc bán các sản phẩm của cửa hàng.</p>
+                <a href="#" class="btn btn-primary">Click Here</a>
+            </div>
+        </div>
+    </div>
+
+</div>
 {{/if}}

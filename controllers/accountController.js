@@ -24,21 +24,21 @@ exports.listAccount = function (req, res) {
 exports.accountDetail = function (req, res) {
     console.log(req.params.id);
     Account.findById(req.params.id)
-    .populate('user')
-    .exec(function(err, result) {
-        console.log(result);
-        res.render('./admin/account/accountDetail', {
-            accountActive: true,
-            loginSuccess: true,
-            url: result.user._id,
-            img: result.user.imgDisplay,
-            username: result.username,
-            fullname: result.user.fullname,
-            email: result.user.email,
-            tel: result.user.tel,
-            address: result.user.address
+        .populate('user')
+        .exec(function (err, result) {
+            console.log(result);
+            res.render('./admin/account/accountDetail', {
+                accountActive: true,
+                loginSuccess: true,
+                url: result.user._id,
+                img: result.user.imgDisplay,
+                username: result.username,
+                fullname: result.user.fullname,
+                email: result.user.email,
+                tel: result.user.tel,
+                address: result.user.address
+            });
         });
-    });
 
 }
 
@@ -229,37 +229,61 @@ exports.createAccount_post = function (req, res) {
 
 exports.loginAdmin_get = function (req, res) {
     if (req.isAuthenticated()) {
-        return res.render('./admin/home', {
-            loginSuccess: true,
-            checkLogin: false,
-            dashboardActive: true
-        });
-    }
+        console.log(req.user._id);
+        Account.findById(req.user._id)
+            .populate('user')
+            .exec(function (err, result) {
+                if (err) {
+                    req.flash('error_msg', 'Không thể load thông tin tài khoảng');
+                    var flashMessages = res.locals.getMessages();
+                    return res.render('./admin/home', {
+                        loginSuccess: true,
+                        checkLogin: false,
+                        dashboardActive: true,
+                        showError: true,
+                        error_msg: flashMessages.error_msg
+                    });
+                }
 
-    var flashMessages = res.locals.getMessages();
+                return res.render('./admin/home', {
+                    loginSuccess: true,
+                    checkLogin: false,
+                    dashboardActive: true,
+                    img: result.user.imgDisplay,
+                    username: result.username,
+                    fullname: result.user.fullname,
+                    email: result.user.email,
+                    tel: result.user.tel,
+                    address: result.user.address
+                });
+            })
 
-    if (flashMessages.success_msg) {
-        console.log(flashMessages.success_msg);
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-            showSuccess: true,
-            success_msg: flashMessages.success_msg
-        });
-    }
-
-    if (flashMessages.error) {
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-            showError: true,
-            errors: flashMessages.error
-        });
     } else {
-        return res.render('./admin/home', {
-            loginSuccess: false,
-            checkLogin: true,
-        });
+        var flashMessages = res.locals.getMessages();
+
+        if (flashMessages.success_msg) {
+            console.log(flashMessages.success_msg);
+            return res.render('./admin/home', {
+                loginSuccess: false,
+                checkLogin: true,
+                showSuccess: true,
+                success_msg: flashMessages.success_msg
+            });
+        }
+
+        if (flashMessages.error) {
+            return res.render('./admin/home', {
+                loginSuccess: false,
+                checkLogin: true,
+                showError: true,
+                error_msg: flashMessages.error
+            });
+        } else {
+            return res.render('./admin/home', {
+                loginSuccess: false,
+                checkLogin: true,
+            });
+        }
     }
 }
 
@@ -268,12 +292,47 @@ exports.loginAdmin_post = function (req, res) {
         failureRedirect: '/admin',
         failureFlash: 'Tên đăng nhập hoặc mật khẩu không đúng.'
     })(req, res, function () {
-        res.render('./admin/home', {
-            loginSuccess: true,
-            checkLogin: false,
-            dashboardActive: true,
-            msg: 'Hello'
-        });
+        var id = req.user._id;
+        console.log(id);
+        Account.findById(id)
+            .populate('user')
+            .exec(function (err, result) {
+                if (err) {
+                    req.flash('error_msg', 'Không thể load thông tin tài khoảng');
+                    var flashMessages = res.locals.getMessages();
+                    return res.render('./admin/home', {
+                        loginSuccess: true,
+                        checkLogin: false,
+                        dashboardActive: true,
+                        showError: true,
+                        error_msg: flashMessages.error_msg
+                    });
+                }
+
+                req.flash('success_msg', 'Xin chao admin');
+                var flashMessages = res.locals.getMessages();
+                return res.render('./admin/home', {
+                    loginSuccess: true,
+                    checkLogin: false,
+                    dashboardActive: true,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg,
+                    img: result.user.imgDisplay,
+                    username: result.username,
+                    fullname: result.user.fullname,
+                    email: result.user.email,
+                    tel: result.user.tel,
+                    address: result.user.address
+                });
+            })
     });
+}
+
+exports.logout = function(req, res) {
+    req.logout();
+
+    req.flash('success_msg', 'Đăng Xuất Thành Công.');
+
+    res.redirect('/admin');
 }
 

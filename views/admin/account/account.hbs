@@ -35,14 +35,9 @@
                         <a href={{this.url}}>Xem chi tiết</a>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">
                             Khóa
                         </button>
-                        <a href={{this.urlDelete}}>
-                            <button type="button" class="btn btn-danger">
-                                Xóa
-                            </button>
-                        </a>
                     </td>
                 </tr>
                 {{/each}}
@@ -61,9 +56,8 @@
             <form action="" , method="POST">
 
                 <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Modal Heading</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modal-header text-center">
+                    <h4 class="text-center">Khóa tài khoảng</h4>
                 </div>
 
                 <!-- Modal body -->
@@ -71,24 +65,24 @@
                     <div class="modal-body">
                         <div class="form-check">
                             <label class="form-check-label">
-                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1" checked> Lock 30 days
+                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1" checked> Khóa trong 30 ngày
                             </label>
                         </div>
                         <div class="form-check">
                             <label class="form-check-label">
-                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2"> Lock 1 year
-                            </label>
-                        </div>
-
-                        <div class="form-check">
-                            <label class="form-check-label">
-                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios3" value="option2"> Lock forever
+                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2"> Khóa 1 năm
                             </label>
                         </div>
 
                         <div class="form-check">
                             <label class="form-check-label">
-                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios4" value="option3"> Active
+                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios3" value="option2"> Khóa vĩnh viễn
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios4" value="option3"> Hoạt động
                             </label>
                         </div>
 
