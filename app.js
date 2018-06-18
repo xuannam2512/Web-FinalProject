@@ -13,7 +13,7 @@ var expressHbs = require('express-handlebars');
 var expressValidator = require('express-validator');
 var Account = require('./models/Account');
 
-var index = require('./routes/index');
+var client = require('./routes/client');
 var users = require('./routes/users');
 var admin = require('./routes/admin');
 
@@ -77,7 +77,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/', client);
 app.use('/admin', admin);
 app.use('/users', users);
 

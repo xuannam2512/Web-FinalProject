@@ -1,0 +1,116 @@
+<nav class="container-fluid bg-primary">
+    <div class="row">
+        <div class="col-5">
+            <a class="navbar-brand text-light">
+                <h3>
+                    <b>Cửa Hàng Điện Thoại</b>
+                </h3>
+            </a>
+            <form class="form-inline">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-light bg-primary text-light my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+        <div id="menuBar" class="col-7 float-right">
+            <div class="row float-right">
+                <div id="home" class="text-center">
+                    <button class="nav-link bg-primary border-0 mb-md-4" onchange="chooseActive(this);" id="homeLink">
+                        <i class="fas fa-home text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
+                        <br>
+                        <span>
+                            <b class="text-light">Trang chủ</b>
+                        </span>
+                    </button>
+                </div>
+                <div id="mobile" class="text-center">
+                    <button class="nav-link bg-primary border-0" onchange="chooseActive(this);" id="mobileDropdown">
+                        <i class="fas fa-mobile text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
+                        <br>
+                        <span>
+                            <b class="text-light">Điện Thoại</b>
+                        </span>
+                        <br>
+                        <i class="fas fa-caret-down text-light" style="font-size: 20px;"></i>
+                    </button>
+                </div>
+                <div id="provider" class="text-center">
+                    <button class="nav-link bg-primary border-0" onchange="chooseActive(this);" id="providerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-parachute-box text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
+                        <br>
+                        <span>
+                            <b class="text-light">Nhà Cung Cấp</b>
+                        </span>
+                        <br>
+                        <i class="fas fa-caret-down text-light" style="font-size: 20px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user"></i>
+                                User Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-cog"></i>
+                                Setting
+                            </a>
+                        </li>
+                        <li class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="/admin/logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="contact" class="text-center">
+                    <button class="nav-link bg-primary border-0" href="" onchange="chooseActive(this);" id="contactLink">
+                        <i class="fas fa-phone-square text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
+                        <br>
+                        <span>
+                            <b class="text-light">Liên Hệ</b>
+                        </span>
+                    </button>
+                </div>
+                <div id="personal" class="text-center">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown">
+                            <button class="nav-link bg-primary border-0" onchange="chooseActive(this);" href="#" id="personalDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
+                                <br>
+                                <span><b class="text-light">Cá Nhân</b></span>
+                                <br>
+                                <i class="fas fa-caret-down text-light" style="font-size: 20px;"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-user"></i>
+                                        User Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog"></i>
+                                        Setting
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/admin/logout">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</nav>
