@@ -1,0 +1,80 @@
+{{#if showError}}
+    {{#each error_msg}}
+        <div class="alert alert-danger">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+    {{#if showSuccess}}
+    {{#each success_msg}}
+        <div class="alert alert-success">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+<div class="container bg-light border rounded mt-md-3">
+    <h4 class="mt-md-3 ml-md-3">Đăng ký tài khoảng</h4>
+    <hr>
+    <div class="modal-body">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <label for="username">
+                <b>Tên đăng nhập</b>
+            </label>
+            <input id="Username" type="text" class="form-control" placeholder="Nhập tên đăng nhập" name="username" required>
+            <br>
+
+            <label for="myImage">
+                <b>Chọn ảnh đại diện</b>
+            </label>
+            <input class="form-control" name="myImage" type="file" onchange="readURL(this);">
+            <br>
+            <div class="text-center">
+                <img id="imgUser" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_163f2e6f25c%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_163f2e6f25c%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.4296875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
+                    height="200" width="200" class="rounded">
+            </div>
+
+            <label for="fullname">
+                <b>Họ tên</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập họ và tên đầy đủ" name="fullname" required>
+            <br>
+
+            <label for="email">
+                <b>Email</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập email" name="email" required>
+            <br>
+
+            <label for="tel">
+                <b>Số điện thoại</b>
+            </label>
+            <input type="text" class="form-control" name="tel" placeholder="Nhập số điện thoại" required>
+            <br>
+
+            <label for="address">
+                <b>Địa chỉ</b>
+            </label>
+            <input type="text" class="form-control" placeholder="Nhập địa chỉ hiện tại" name="address" required>
+            <br>
+
+            <label for="password">
+                <b>Mật khẩu</b>
+            </label>
+            <input type="password" class="form-control" placeholder="Nhập mật khẩu" name="password">
+            <br>
+
+            <label for="confirmPassword">
+                <b>Xác nhận lại mật khẩu</b>
+            </label>
+            <input type="password" class="form-control" placeholder="Nhập lại mật khẩu" name="confirmPassword" required>
+            <br>
+
+            <button type="submit" class="btn btn-primary w-100 h-100 text-light rounded">
+                <b>Đăng Ký</b>
+            </button>
+        </form>
+    </div>
+</div>
+<br>

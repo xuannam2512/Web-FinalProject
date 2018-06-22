@@ -1,8 +1,10 @@
 var Provider = require('../models/Provider');
 var Mobile = require('../models/Mobile');
 var Image = require('./configUploadImage');
+var Specification = require('../models/Specifications');
 var async = require('async');
 
+//admin
 exports.listProvider = function (req, res) {
     console.log('here');
     Provider.find({})

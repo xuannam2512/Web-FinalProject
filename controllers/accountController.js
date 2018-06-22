@@ -2,8 +2,11 @@ var mongoose = require('mongoose');
 var passport = require("passport");
 var Account = require('../models/Account');
 var User = require('../models/User');
+
 var Image = require('./configUploadImage');
 var async = require('async');
+const randomstring = require('randomstring');
+const nodemailer = require('nodemailer');
 
 exports.listAccount = function (req, res) {
     Account.find({})
@@ -161,15 +164,24 @@ exports.createAccount_post = function (req, res) {
                 }
 
                 //check username is exist before
-                Account.find({ 'username': username })
-                    .exec(function (err, result) {
-                        if (err) {
-                            var path = './public/uploads/' + req.file.filename;
-                            Image.Delete(path);
-                            return res.sendStatus(404)
-                        }
-                        if (result.length == 1) {
-                            var path = './public/uploads/' + req.file.filename;
+                async.parallel({
+                    account: function (callback) {
+                        Account.find({ 'username': req.body.username })
+                            .exec(callback);
+                    },
+                    email: function (callback) {
+                        User.find({ 'email': req.body.email })
+                            .exec(callback);
+                    }
+                }, function (err, result) {
+                    if (err) {
+                        var path = './public/uploads/' + req.file.filename;
+                        Image.Delete(path);
+                        return res.sendStatus(404)
+                    }
+                    //neu tai khoang da toan tai
+                    if (result.account.length > 0) {
+                        var path = './public/uploads/' + req.file.filename;
                             Image.Delete(path);
                             req.flash('error_msg', 'Tên tài khoảng đã tồn tại');
                             errors = res.locals.getMessages();
@@ -180,46 +192,103 @@ exports.createAccount_post = function (req, res) {
                                 login: true,
                                 showError: true,
                                 error: errors.error_msg
+                            });
+                    } else {
+                        if (result.email.length > 0) {
+                            var path = './public/uploads/' + req.file.filename;
+                            Image.Delete(path);
+                            req.flash('error_msg', 'Email đã tồn tại');
+                            errors = res.locals.getMessages();
+                            console.log(errors.error_msg);
+                            return res.render('./admin/account/createAccount', {
+                                accountActive: true,
+                                loginSuccess: true,
+                                login: true,
+                                showError: true,
+                                error: errors.error_msg
                             })
-                        }
-                    })
-
-
-                userDetail = {
-                    fullname: req.body.fullname,
-                    imgDisplay: '../../../uploads/' + req.file.filename,
-                    imgDelete: './public/uploads/' + req.file.filename,
-                    email: req.body.email,
-                    tel: req.body.tel,
-                    address: req.body.address
-                }
-
-                var newUser = new User(userDetail);
-
-                Account.register(new Account({
-                    username: req.body.username,
-                    authorization: req.body.authorization,
-                    user: newUser,
-                    status: 'Active'
-                }), req.body.password, function (err, account) {
-                    if (err) {
-                        var path = './public/uploads/' + req.file.filename;
-                        Image.Delete(path);
-                        console.log('error: ' + err);
-                        return res.send(account);
-                    }
-
-                    passport.authenticate('local')(req, res, function () {
-
-                        newUser.save(function (err, result) {
-                            if (err) {
-                                console.error(err);
-                                return;
+                        } else {
+                            userDetail = {
+                                fullname: req.body.fullname,
+                                imgDisplay: '../../../uploads/' + req.file.filename,
+                                imgDelete: './public/uploads/' + req.file.filename,
+                                email: req.body.email,
+                                tel: req.body.tel,
+                                address: req.body.address
                             }
-                            console.log('new newUser: ' + newUser);
-                            res.redirect('/admin/account');
-                        });
-                    });
+            
+                            var newUser = new User(userDetail);
+                            const secretToken = randomstring.generate();
+
+                            Account.register(new Account({
+                                username: req.body.username,
+                                authorization: 'Customer',
+                                user: newUser,
+                                secretToken: secretToken,
+                                status: 'Not Active'
+                            }), req.body.password, function (err, account) {
+                                if (err) {
+                                    var path = './public/uploads/' + req.file.filename;
+                                    Image.Delete(path);
+                                    console.log('error: ' + err);
+                                    return res.send(account);
+                                }
+
+                                passport.authenticate('local')(req, res, function () {
+
+                                    newUser.save(function (err, result) {
+                                        if (err) {
+                                            console.error(err);
+                                            return;
+                                        }
+
+                                        //send mail
+                                        //content mail
+                                        const html = `Hi there,
+                                        <br/>
+                                        Thank you for registering!
+                                        <br/><br/>
+                                        Please verify your email by typing the following token:
+                                        <br/>
+                                        Token: <b>${secretToken}</b>
+                                        <br/>
+                                        On the following page:
+                                        <a href="http://localhost:3000/verify">http://localhost:3000/verify</a>
+                                        <br/><br/>
+                                        Have a pleasant day.`
+                                        
+                                        //config nodemailer
+                                        var transporter = nodemailer.createTransport({
+                                            service: 'Gmail',
+                                            secure: true,
+                                            port: 465,
+                                            auth: {
+                                                user: 'xuannam2512@gmail.com',
+                                                pass: 'frhojmxzxlfbesar'
+                                            }
+                                        });
+                                        //content mail
+                                        var mailOptions = {
+                                            from: 'xuannam2512@gmail.com',
+                                            to: req.body.email,
+                                            subject: 'Sending Email using Node.js',
+                                            html: html
+                                        };
+                                        //send mail
+                                        transporter.sendMail(mailOptions, function (error, info) {
+                                            if (error) {
+                                                console.log(error);
+                                            } else {
+                                                console.log('Email sent: ' + info.response);
+                                                req.flash('success_msg', 'Đăng ký thành công, hãy kiễm tra email để kích hoạt!');
+                                                res.redirect('/admin/account');
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+                        }
+                    }
                 });
             }
         }
@@ -230,7 +299,9 @@ exports.createAccount_post = function (req, res) {
 exports.loginAdmin_get = function (req, res) {
     if (req.isAuthenticated()) {
         console.log(req.user._id);
-        Account.findById(req.user._id)
+        var authorization = req.user.authorization;
+        if(authorization == 'Admin') {
+            Account.findById(req.user._id)
             .populate('user')
             .exec(function (err, result) {
                 if (err) {
@@ -257,7 +328,17 @@ exports.loginAdmin_get = function (req, res) {
                     address: result.user.address
                 });
             })
-
+        } else {
+            req.flash('error_msg', 'Chỉ có tài khoảng admin mới được đăng nhập!');
+            var flashMessages = res.locals.getMessages();
+            return res.render('./admin/home', {
+                loginSuccess: false,
+                checkLogin: true,
+                dashboardActive: true,
+                showError: true,
+                error_msg: flashMessages.error_msg
+            });
+        }
     } else {
         var flashMessages = res.locals.getMessages();
 
@@ -293,8 +374,12 @@ exports.loginAdmin_post = function (req, res) {
         failureFlash: 'Tên đăng nhập hoặc mật khẩu không đúng.'
     })(req, res, function () {
         var id = req.user._id;
+        var authorization = req.user.authorization;
+        var status = req.user.status;
+        console.log(authorization);
         console.log(id);
-        Account.findById(id)
+        if(authorization == "Admin" && status == 'Active') {
+            Account.findById(id)
             .populate('user')
             .exec(function (err, result) {
                 if (err) {
@@ -325,6 +410,18 @@ exports.loginAdmin_post = function (req, res) {
                     address: result.user.address
                 });
             })
+        } else {
+            req.flash('error_msg', 'Chỉ có tài khoảng admin mới được đăng nhập! Hoặc tài khoảng chưa được active, hãy kiễm tra mail!');
+            var flashMessages = res.locals.getMessages();
+            return res.render('./admin/home', {
+                loginSuccess: false,
+                checkLogin: true,
+                dashboardActive: true,
+                showError: true,
+                error_msg: flashMessages.error_msg
+            });
+        }
+        
     });
 }
 

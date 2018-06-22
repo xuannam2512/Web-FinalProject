@@ -1,0 +1,66 @@
+<div class="container bg-light border rounded mt-md-3">
+    <h4 class="mt-md-3 ml-md-3">Kết quả tìm kiếm ( <i>{{amount}}</i> )</h4>
+    <hr>
+    <br>
+    {{#if provider}}
+    <div class="row">
+        {{#each providers}}
+        <div class="col-sm-4">
+            <div class="card mt-md-3 mb-md-3">
+                <img class="card-img-top" height="300" src="{{this.imgDisplay}}" alt="Card image" style="width:100%">
+                <div class="card-body">
+                    <h4 class="card-title">{{this.name}}</h4>
+                        <p class="card-text" style="overflow: hidden; height: 100px;">Màn hình: {{this.info}}</p>
+                    <a href="/nha-cung-cap/{{this._id}}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if mobile}}
+    <div class="row">
+        {{#each mobiles}}
+        <div class="col-sm-4">
+            <div class="card mt-md-3 mb-md-3">
+                <img class="card-img-top" src="{{this.imgDisplay}}" alt="Card image" style="width:100%">
+                <div class="card-body">
+                    <h4 class="card-title">{{this.mobileID.mobileName}}</h4>
+                    <p><b>Giá: {{this.mobileID.salePrice}} <u>đ</u></b></p>
+                    <p class="card-text">Màn hình: {{this.screen}}</p>
+                    <p class="card-text">Cpu: {{this.cpu}}</p>
+                    <a href="#" class="btn btn-danger">Thêm giỏ hàng</a>
+                    <a href="/dien-thoai/{{this.mobileID._id}}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+
+    {{#if noresult}}
+    <div class="text-center">
+        <img src="../../images/noti-search.png" alt="" class="rounded">
+        <h4>Rất tiếc chúng tôi không tìm thấy kết quả.</h4>
+        <br>
+        <div class="text-center">
+            <p><b>Để tìm được kết quả chính xác hơn, xin vui lòng:</b></p>
+            <div class="row">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-6 border text-center">
+                    <ul>
+                        <li>Kiểm tra lỗi chính tả của từ khóa đã nhập</li>
+                        <li>Thử lại bằng từ khóa khác</li>
+                        <li>Thử lại bằng những từ khóa tổng quát hơn</li>
+                        <li>Thử lại bằng những từ khóa ngắn gọn hơn</li>
+                    </ul>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+        </div>
+        <br>
+    </div>
+    {{/if}}
+</div>
+<br>

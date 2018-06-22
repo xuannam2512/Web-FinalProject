@@ -28,4 +28,5 @@ providerSchema
     return '/admin/provider/' + this._id + '/delete';
 });
 
+
 module.exports = mongoose.model('Provider', providerSchema);

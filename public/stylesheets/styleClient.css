@@ -1,0 +1,8 @@
+#mobile .dropdown-menu {
+    width: 400px !important;
+    height: auto !important;
+}
+
+.dropdown-menu {
+    width: auto !important;
+}
