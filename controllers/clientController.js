@@ -1918,3 +1918,63 @@ exports.recievedMobile_get = function(req, res) {
         return res.redirect('/lich-su-mua-hang');
     });
 }
+
+//thong tin chi tiet nha cung cap
+exports.providerDetaile_get = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
+    async.parallel({
+        providers: function(callback) {
+            Provider.find({})
+            .exec(callback);
+        },
+        mobiles: function(callback) {
+            Mobile.find({'provider': req.params.id})
+            .populate('provider')
+            .exec(callback);
+        }
+    }, function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+
+        var provider = result.mobiles[0].provider;
+        var providers = result.providers;
+        console.log(provider);
+
+        Specification.find({'mobileID': result.mobiles})
+        .populate('mobileID')
+        .exec(function(err, result) {
+            if(err) {
+                return console.log(err);
+            }
+            console.log(result.length);
+            if(req.isAuthenticated()) {
+                res.render('./client/providerDetail', {
+                    layout: 'layoutClient.hbs',
+                    providerActive: true,
+                    loginSuccess: true, 
+                    amountInCart: amountInCart,
+                    nameProvider: providers,
+                    mobile: result, 
+                    title: provider.name,
+                    img: provider.imgDisplay,
+                    info: provider.info
+                });
+            } else {
+                res.render('./client/providerDetail', {
+                    layout: 'layoutClient.hbs',
+                    providerActive: true,
+                    loginSuccess: false,
+                    amountInCart: amountInCart,
+                    nameProvider: providers,
+                    mobile: result,
+                    title: provider.name,
+                    img: provider.imgDisplay,
+                    info: provider.info
+                });
+            }
+        });
+    })
+}

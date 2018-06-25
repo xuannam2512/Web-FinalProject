@@ -87,25 +87,13 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         {{#each nameProvider}}
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="/nha-cung-cap/{{this._id}}">
                                 {{this.name}}
                             </a>
                         </li>
                         {{/each}}
                     </div>
 
-                </div>
-                <div id="contact" class="text-center nav-bar">
-                    <a href="/contact" class="nav-link border-0 {{#if contactActive}}table-active{{else}}bg-primary{{/if}}" href="" onchange="chooseActive(this);"
-                        id="contactLink">
-                        <i class="fas fa-phone-square text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;">
-                        </i>
-                        <br>
-                        <span>
-                            <b class="text-light">Liên Hệ</b>
-                            <br/> &nbsp;
-                        </span>
-                    </a>
                 </div>
                 <div id="contact" class="text-center nav-bar">
                     <a href="/gio-hang" class="nav-link border-0 {{#if cartActive}}table-active{{else}}bg-primary{{/if}}">

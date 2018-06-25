@@ -74,5 +74,7 @@ router.get('/lich-su-mua-hang/:id', clientController.saleHistoryDetail_get);
 
 router.get('/lich-su-mua-hang/da-nhan/:id', clientController.recievedMobile_get);
 
+router.get('/nha-cung-cap/:id', clientController.providerDetaile_get);
+
 
 module.exports = router;

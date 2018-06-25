@@ -1,0 +1,49 @@
+{{#if showError}} {{#each error_msg}}
+<div class="alert alert-danger">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}} {{#if showSuccess}} {{#each success_msg}}
+<div class="alert alert-success">
+    {{this}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+</div>
+{{/each}} {{/if}}
+
+<div class="container rounded border mt-md-3 bg-light">
+    <h4 class="mt-md-3 ml-md-3">Thông Tin Chi Tiết Về Nhà Cung Cấp</h4>
+    <hr><br>
+    <div class="text-center">
+        <h2>{{title}}</h2>
+        <br>
+        <img src="{{img}}" alt="" height="200" width="200" class="rounded">
+        <br>
+        <hr>
+    </div>
+    <div class="container">
+        <h5>Thông tin</h5>
+        <p>{{info}}</p>
+    </div>
+</div>
+<br>
+<div class="container bg-light rounded border mt-md-3">
+    <h4 class="mt-md-3 ml-md-3">Các sản phẩm của nhà cung cấp</h4>
+    <hr><br>
+    <div class="row">
+        {{#each mobile}}
+        <div class="col-sm-4">
+            <div class="card mt-md-3 mb-md-3">
+                <img class="card-img-top" src="{{this.imgDisplay}}" alt="Card image" style="width:100%">
+                <div class="card-body">
+                    <h4 class="card-title">{{this.mobileID.mobileName}}</h4>
+                    <p><b>Giá: {{this.mobileID.salePrice}} <u>đ</u></b></p>
+                    <p class="card-text">Màn hình: {{this.screen}}</p>
+                    <p class="card-text">Cpu: {{this.cpu}}</p>
+                    <a href="/dien-thoai/{{this.mobileID._id}}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+<br>
