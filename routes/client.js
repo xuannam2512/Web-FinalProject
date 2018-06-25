@@ -20,6 +20,14 @@ router.get('/verify', clientController.verifyEmail_get);
 
 router.post('/verify', clientController.verifyEmail_post);
 
+router.get('/verify-changepass', clientController.verifyAndChangePass_get);
+
+router.post('/verify-changepass', clientController.verifyAndChangePass_post);
+
+router.get('/quen-mat-khau', clientController.forgotPassword_get);
+
+router.post('/quen-mat-khau', clientController.forgotPassword_post);
+
 router.get('/dien-thoai', clientController.listMobile)
 
 router.get('/dien-thoai/duoi-1-trieu', clientController.listMobile_duoi1);
@@ -40,12 +48,31 @@ router.get('/dien-thoai/:id', clientController.mobileDetail);
 
 router.post('/dien-thoai/:id', clientController.comment_post);
 
-router.get('/ca-nhan', clientController.profile);
+router.get('/ca-nhan', clientController.profile_get);
 
 router.post('/ca-nhan/chinh-sua', clientController.editProfile_post);
 
 router.post('/ca-nhan/doi-mat-khau', clientController.changPassword_post);
 
 router.post('/tim-kiem', clientController.search_post);
+
+router.post('/dien-thoai/:id/them-vao-gio-hang', clientController.addToCartShopping_post);
+
+router.get('/gio-hang', clientController.cartShopping_get);
+
+router.post('/gio-hang', clientController.cartShopping_post);
+
+router.get('/gio-hang/delete/:id', clientController.deleteCart);
+
+router.get('/gio-hang/tang-1/:id', clientController.increaseByOne);
+
+router.get('/gio-hang/giam-1/:id', clientController.decreaseByOne);
+
+router.get('/lich-su-mua-hang', clientController.saleHistory_get);
+
+router.get('/lich-su-mua-hang/:id', clientController.saleHistoryDetail_get);
+
+router.get('/lich-su-mua-hang/da-nhan/:id', clientController.recievedMobile_get);
+
 
 module.exports = router;

@@ -55,6 +55,24 @@ accountSchema.methods.changePassword = function(oldPassword, newPassword, cb) {
     });
   };
 
+  accountSchema.methods.changePasswordNotCheckOldPass = function(newPassword, cb) {
+    if (!newPassword) {
+      return cb(new errors.MissingPasswordError(options.errorMessages.MissingPasswordError));
+    }
+
+    var self = this;
+
+    this.setPassword(newPassword, function(setPasswordErr, user) {
+      if (setPasswordErr) { return cb(setPasswordErr); }
+
+      self.save(function(saveErr) {
+        if (saveErr) { return cb(saveErr); }
+
+        cb(null, user);
+      });
+    });
+  };
+
 accountSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('Account', accountSchema);

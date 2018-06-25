@@ -53,10 +53,22 @@
             </div>
             <br>
             <h5>Giá: {{price}} <u>đ</u></h5>
-            <button class="btn btn-warning w-100">
-                <b style="font-size: 25px;">Mua Ngay</b>
-            </button>
-            <br><br>
+                <form action="/dien-thoai/{{id}}/them-vao-gio-hang" method="POST">
+                <div class="row container">
+                    <a id="decrease" onclick="decreaseAmount()" class="btn border bg-white" style="width: 35px;">-</a>
+                    <input id="amount" class="form-control" type="text" min="1" max="100" value="1" style="width: 35px; text-align: center;"
+                        readonly name="amount">
+                    <a id="increase" onclick="increaseAmount()" class="btn border bg-white" style="width: 35px;">+</a>
+                    <button class="mt-md-2 btn btn-warning w-100" onclick="choosePurchase()">
+                        <span>
+                            <i class="fas fa-shopping-cart" style="font-size: 25px;"></i>
+                        </span>
+                        <b class="ml-md-3" style="font-size: 25px;">Chọn Mua</b>
+                    </button>
+                    </div>
+                </form>
+            
+            <br>
         </div>
         <div class="col">
             <div class="container">
@@ -118,7 +130,6 @@
                     <p><b>Giá: {{this.mobileID.salePrice}} <u>đ</u></b></p>
                     <p class="card-text">Màn hình: {{this.screen}}</p>
                     <p class="card-text">Cpu: {{this.cpu}}</p>
-                    <a href="#" class="btn btn-danger">Thêm giỏ hàng</a>
                     <a href="/dien-thoai/{{this.mobileID._id}}" class="btn btn-primary">Xem chi tiết</a>
                 </div>
             </div>

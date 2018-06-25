@@ -85,6 +85,13 @@ router.get('/upload', uploadController.upload_get);
 
 router.post('/upload', uploadController.upload_post);
 
+//sale
+router.get('/sale', isLoggedIn, saleController.listSale_get);
+
+router.get('/sale/:id', isLoggedIn, saleController.saleDetail);
+
+router.get('/sale/deliver/:id', isLoggedIn, saleController.deliver_get);
+
 module.exports = router;
 
 //route middleware to ensure user is logged in

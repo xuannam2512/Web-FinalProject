@@ -24,8 +24,8 @@
                     </a>
                 </div>
                 <div id="mobile" class="text-center nav-item dropdown">
-                    <a class="nav-link border-0 {{#if mobileActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);" id="providerDropdown" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link border-0 {{#if mobileActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);" id="providerDropdown"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-mobile text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;"></i>
                         <br>
                         <span>
@@ -40,9 +40,9 @@
                                 <div class="col-6 border-right">
                                     <h6>NHÀ CUNG CẤP</h6>
                                     {{#each nameProvider}}
-                                        <a href="/dien-thoai/{{this.name}}-{{this._id}}" class="dropdown-item">
-                                            {{this.name}}
-                                        </a>
+                                    <a href="/dien-thoai/{{this.name}}-{{this._id}}" class="dropdown-item">
+                                        {{this.name}}
+                                    </a>
                                     {{/each}}
                                     <a href="/dien-thoai" class="dropdown-item">
                                         Tất cả sản phẩm
@@ -74,8 +74,8 @@
                     </div>
                 </div>
                 <div id="provider" class="text-center nav-item dropdown">
-                    <button class="nav-link border-0 {{#if providerActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);" id="providerDropdown" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                    <button class="nav-link border-0 {{#if providerActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);"
+                        id="providerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-parachute-box text-light mt-md-2 mr-md-5 ml-md-5" style="font-size: 35px;"></i>
                         <br>
                         <span>
@@ -86,17 +86,18 @@
                     </button>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         {{#each nameProvider}}
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    {{this.name}}
-                                </a>
-                            </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                {{this.name}}
+                            </a>
+                        </li>
                         {{/each}}
                     </div>
 
                 </div>
                 <div id="contact" class="text-center nav-bar">
-                    <a href="/contact" class="nav-link border-0 {{#if contactActive}}table-active{{else}}bg-primary{{/if}}" href="" onchange="chooseActive(this);" id="contactLink">
+                    <a href="/contact" class="nav-link border-0 {{#if contactActive}}table-active{{else}}bg-primary{{/if}}" href="" onchange="chooseActive(this);"
+                        id="contactLink">
                         <i class="fas fa-phone-square text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;">
                         </i>
                         <br>
@@ -106,10 +107,22 @@
                         </span>
                     </a>
                 </div>
+                <div id="contact" class="text-center nav-bar">
+                    <a href="/gio-hang" class="nav-link border-0 {{#if cartActive}}table-active{{else}}bg-primary{{/if}}">
+                        <i class="fas fa-shopping-cart text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;">
+                        </i>
+                        <br>
+                        <span>
+                            <b class="text-light">Giỏ Hàng</b>
+                            <br>
+                            <span class="btn btn-warning text-bold" style="padding: 1px; padding-right: 6px; padding-left: 6px;"><b>{{amountInCart}}</b></span>
+                        </span>
+                    </a>
+                </div>
                 {{#if loginSuccess}}
                 <div id="personal" class="text-center nav-bar dropdown">
-                    <button class="nav-link border-0 {{#if personalActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);" id="providerDropdown"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="nav-link border-0 {{#if personalActive}}table-active{{else}}bg-primary{{/if}}" onchange="chooseActive(this);"
+                        id="providerDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;"></i>
                         <br>
                         <span>
@@ -126,9 +139,9 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="/lich-su-mua-hang">
                                 <i class="fas fa-shopping-cart"></i>
-                                Giỏ hàng
+                                Lịch sử mua hàng
                             </a>
                         </li>
                         <li class="dropdown-divider"></li>
@@ -144,8 +157,7 @@
                 </div>
                 {{else}}
                 <div id="contact" class="text-center nav-bar">
-                    <button class="nav-link border-0 {{#if signinActive}}table-active{{else}}bg-primary{{/if}}" 
-                     data-toggle="modal" data-target="#modalLogin">
+                    <button class="nav-link border-0 {{#if signinActive}}table-active{{else}}bg-primary{{/if}}" data-toggle="modal" data-target="#modalLogin">
                         <i class="fas fa-sign-in-alt text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;">
                         </i>
                         <br>
@@ -155,18 +167,7 @@
                         </span>
                     </button>
                 </div>
-                <div id="contact" class="text-center nav-bar">
-                    <a href="/register" class="nav-link border-0 {{#if registerActive}}table-active{{else}}bg-primary{{/if}}">
-                        <i class="fas fa-registered text-light mt-md-2 mr-3 ml-3" style="font-size: 35px;">
-                        </i>
-                        <br>
-                        <span>
-                            <b class="text-light">Đăng ký</b>
-                            <br/> &nbsp;
-                        </span>
-                    </a>
-                </div>
-                 {{/if}}
+                {{/if}}
             </div>
         </div>
     </div>
@@ -175,33 +176,36 @@
 {{!-- form login --}}
 <div class="modal fade" id="modalLogin">
     <div class="modal-dialog">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header text-center">
-          <h4 class="modal-title">Đăng Nhập</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header text-center">
+                <h4 class="modal-title">Đăng Nhập</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form action="/login" method="GET">
+                    <label for="username">
+                        <b>Tên đăng nhập</b>
+                    </label>
+                    <input type="text" class="form-control" placeholder="Nhập tên đăng nhập" name="username">
+                    <br>
+                    <label for="password">
+                        <b>Mật khẩu</b>
+                    </label>
+                    <input type="password" class="form-control" placeholder="Nhập mật khẩu" name="password">
+                    <a href="/quen-mat-khau" class="border-0 float-left">Quên mật khẩu</a>
+                    <a href="/register" class="border-0 float-right">Đăng ký</a>
+                    <br>
+                    <br>
+                    <button type="submit" class="btn btn-primary w-100 h-100 text-light rounded">
+                        <b>Đăng Nhập</b>
+                    </button>
+                </form>
+            </div>
+
         </div>
-        
-        <!-- Modal body -->
-        <div class="modal-body">
-          <form action="/login" method="GET">
-              <label for="username">
-                  <b>Tên đăng nhập</b>
-              </label>
-              <input type="text" class="form-control" placeholder="Nhập tên đăng nhập" name="username">
-              <br>
-              <label for="password">
-                  <b>Mật khẩu</b>
-              </label>
-              <input type="password" class="form-control" placeholder="Nhập mật khẩu" name="password">
-              <br>
-              <button type="submit" class="btn btn-primary w-100 h-100 text-light rounded">
-                  <b>Đăng Nhập</b>
-                </button>
-          </form>
-        </div>
-        
-      </div>
     </div>
-  </div>
+</div>

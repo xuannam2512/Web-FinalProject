@@ -5,70 +5,77 @@ var Mobile = require('../models/Mobile');
 var Provider = require('../models/Provider');
 var Specification = require('../models/Specifications');
 var Comment = require('../models/Comment');
+var Sale = require('../models/Sale');
+var Cart = require('../models/cart');
 
 var passport = require("passport");
 var async = require('async');
 var Image = require('./configUploadImage');
 const randomstring = require('randomstring');
 var nodemailer = require('nodemailer');
+var dateFormat = require('dateformat');
 
-exports.homeClient = function(req, res) {
+exports.homeClient = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
+    }, function (err, result) {
         var apple = [];
         var samsung = [];
         var idApple, idSamsung;
         //get id of provider apple and samsung
-        for(var i = 0; i < result.provider.length; i++) {
-            if(result.provider[i].name == 'APPLE')
+        for (var i = 0; i < result.provider.length; i++) {
+            if (result.provider[i].name == 'APPLE')
                 idApple = result.provider[i]._id;
-            if(result.provider[i].name == 'SAMSUNG')
+            if (result.provider[i].name == 'SAMSUNG')
                 idSamsung = result.provider[i]._id
         }
         //get 6 mobile of each provider
-        for(var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var idProvider = result.specification[i].mobileID.provider;
-            if(idProvider.toString() == idApple.toString() && apple.length <= 6) {
+            if (idProvider.toString() == idApple.toString() && apple.length <= 6) {
                 apple.push(result.specification[i])
             }
-            if(idProvider.toString() == idSamsung.toString() && samsung.length <= 6) {
+            if (idProvider.toString() == idSamsung.toString() && samsung.length <= 6) {
                 samsung.push(result.specification[i])
             }
         }
 
         var flashMessages = res.locals.getMessages();
-        if(flashMessages.error) {
+        if (flashMessages.error) {
             return res.render('./client/home', {
                 layout: 'layoutClient.hbs',
                 homeActive: true,
                 loginSuccess: false,
                 nameProvider: result.provider,
-                apple: apple, 
-                samsung: samsung, 
+                apple: apple,
+                samsung: samsung,
                 provider: result.provider,
+                amountInCart: amountInCart,
                 showError: true,
                 error_msg: flashMessages.error
             });
-        } else{
-            if(flashMessages.success_msg) {
-                if(req.isAuthenticated()) {
+        } else {
+            if (flashMessages.success_msg) {
+                if (req.isAuthenticated()) {
                     return res.render('./client/home', {
                         layout: 'layoutClient.hbs',
                         homeActive: true,
                         loginSuccess: true,
                         nameProvider: result.provider,
-                        apple: apple, 
-                        samsung: samsung, 
+                        apple: apple,
+                        samsung: samsung,
                         provider: result.provider,
+                        amountInCart: amountInCart,
                         showSuccess: true,
                         success_msg: flashMessages.success_msg
                     });
@@ -78,25 +85,27 @@ exports.homeClient = function(req, res) {
                         homeActive: true,
                         loginSuccess: false,
                         nameProvider: result.provider,
-                        apple: apple, 
-                        samsung: samsung, 
+                        apple: apple,
+                        samsung: samsung,
                         provider: result.provider,
+                        amountInCart: amountInCart,
                         showSuccess: true,
                         success_msg: flashMessages.success_msg
                     });
                 }
 
-                
+
             } else {
-                if(req.isAuthenticated()) {
+                if (req.isAuthenticated()) {
                     return res.render('./client/home', {
                         layout: 'layoutClient.hbs',
                         homeActive: true,
                         loginSuccess: true,
                         nameProvider: result.provider,
-                        apple: apple, 
-                        samsung: samsung, 
-                        provider: result.provider
+                        apple: apple,
+                        samsung: samsung,
+                        provider: result.provider,
+                        amountInCart: amountInCart,
                     });
                 } else {
                     return res.render('./client/home', {
@@ -104,9 +113,10 @@ exports.homeClient = function(req, res) {
                         homeActive: true,
                         loginSuccess: false,
                         nameProvider: result.provider,
-                        apple: apple, 
-                        samsung: samsung, 
-                        provider: result.provider
+                        apple: apple,
+                        samsung: samsung,
+                        provider: result.provider,
+                        amountInCart: amountInCart,
                     });
                 }
             }
@@ -114,7 +124,7 @@ exports.homeClient = function(req, res) {
     })
 }
 
-exports.login_post = function(req, res) {
+exports.login_post = function (req, res) {
     passport.authenticate('local', {
         failureRedirect: '/',
         failureFlash: 'Tên đăng nhập hoặc mật khẩu không đúng.'
@@ -140,42 +150,58 @@ exports.login_post = function(req, res) {
     });
 }
 
-exports.logout = function(req, res) {
+exports.logout = function (req, res) {
     req.logout();
 
     req.flash('success_msg', 'Đăng Xuất Thành Công.');
-    var flashMessages = res.locals.getMessages();
 
     res.redirect('/');
 }
 
-exports.register_get = function(req, res) {
+//dang ky tai khoang
+exports.register_get = function (req, res) {
     var flashMessages = res.locals.getMessages();
-    if(flashMessages.error) {
-        return res.render('./client/register', {
-            layout: 'layoutClient.hbs',
-            loginSuccess: false,
-            registerActive: true,
-            showError: true,
-            error_msg: flashMessages.error
-        });
-    } else {
-        if(flashMessages.success_msg) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
+    Provider.find({})
+    .exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+
+        if (flashMessages.error) {
             return res.render('./client/register', {
                 layout: 'layoutClient.hbs',
                 loginSuccess: false,
+                nameProvider: result,
                 registerActive: true,
-                showSuccess: true,
-                success_msg: flashMessages.success_msg
+                showError: true,
+                error_msg: flashMessages.error,
+                amountInCart: amountInCart
             });
         } else {
-            res.render('./client/register', {
-                layout: 'layoutClient.hbs',
-                loginSuccess: false,
-                registerActive: true
-            });
+            if (flashMessages.success_msg) {
+                return res.render('./client/register', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: false,
+                    nameProvider: result,
+                    registerActive: true,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg, 
+                    amountInCart: amountInCart
+                });
+            } else {
+                res.render('./client/register', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: false,
+                    registerActive: true,
+                    nameProvider: result,
+                    amountInCart: amountInCart
+                });
+            }
         }
-    }
+    });
 }
 
 exports.register_post = function (req, res) {
@@ -278,7 +304,7 @@ exports.register_post = function (req, res) {
                                         <a href="http://localhost:3000/verify">http://localhost:3000/verify</a>
                                         <br/><br/>
                                         Have a pleasant day.`
-                                        
+
                                         //config nodemailer
                                         var transporter = nodemailer.createTransport({
                                             service: 'Gmail',
@@ -318,36 +344,52 @@ exports.register_post = function (req, res) {
     })
 }
 
-exports.verifyEmail_get = function(req, res) {
+//trang xac nhan ma bao mat
+exports.verifyEmail_get = function (req, res) {
     var flashMessages = res.locals.getMessages();
-    if (flashMessages.error) {
-       return res.render('./client/verify', {
-        layout: 'layoutClient.hbs',
-        loginSuccess: false, 
-        registerActive: true,
-        showError: true,
-        error_msg: flashMessages.error
-    });
-    } else {
-        if(flashMessages.success_msg) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+    Provider.find({})
+    .exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+
+        if (flashMessages.error) {
             return res.render('./client/verify', {
                 layout: 'layoutClient.hbs',
-                loginSuccess: false, 
+                loginSuccess: false,
                 registerActive: true,
-                showSuccess: true,
-                success_msg: flashMessages.success_msg
+                nameProvider: result,
+                showError: true,
+                error_msg: flashMessages.error,
+                amountInCart: amountInCart
             });
         } else {
-            return res.render('./client/verify', {
-                layout: 'layoutClient.hbs',
-                loginSuccess: false, 
-                registerActive: true
-            });
+            if (flashMessages.success_msg) {
+                return res.render('./client/verify', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: false,
+                    registerActive: true,
+                    nameProvider: result,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg,
+                    amountInCart: amountInCart
+                });
+            } else {
+                return res.render('./client/verify', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: false,
+                    nameProvider: result,
+                    registerActive: true,
+                    amountInCart: amountInCart
+                });
+            }
         }
-    }
+    });
 }
 
-exports.verifyEmail_post = async(req, res, next) => {
+exports.verifyEmail_post = async (req, res, next) => {
     try {
         const { secretToken } = req.body;
         const user = await Account.findOneAndUpdate({ 'secretToken': secretToken }, {
@@ -365,71 +407,277 @@ exports.verifyEmail_post = async(req, res, next) => {
     }
 }
 
-exports.profile = function(req, res) {
+//quen mat khau
+exports.forgotPassword_get = function (req, res) {
+    var flashMessages = res.locals.getMessages();
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
+    Provider.find({})
+    .exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+
+        if (flashMessages.error) {
+            return res.render('./client/forgotPassword', {
+                layout: 'layoutClient.hbs',
+                signinActive: true,
+                loginSuccess: false,
+                showError: true,
+                nameProvider: result,
+                error_msg: flashMessages.error,
+                amountInCart: amountInCart
+            });
+        } else {
+            if (flashMessages.success_msg) {
+                return res.render('./client/forgotPassword', {
+                    layout: 'layoutClient.hbs',
+                    signinActive: true,
+                    loginSuccess: false,
+                    nameProvider: result,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg,
+                    amountInCart: amountInCart
+                });
+            } else {
+                return res.render('./client/forgotPassword', {
+                    layout: 'layoutClient.hbs',
+                    signinActive: true,
+                    loginSuccess: false,
+                    nameProvider: result,
+                    amountInCart: amountInCart
+                });
+            }
+        }
+    });
+}
+
+exports.forgotPassword_post = function (req, res) {
+    //tim email trong danh sach user
+    User.findOne({ 'email': req.body.email })
+        .exec(function (err, user) {
+            if (err) {
+                return console.log(err);
+            }
+            if (user == null) {
+                req.flash('error', 'Email không tồn tài.');
+                return res.redirect('/quen-mat/khau');
+            }
+            console.log(user);
+
+            Account.findOne({ 'user': user })
+                .exec(function (err, result) {
+                    var secretToken = result.secretToken;
+                    console.log(secretToken);
+                    const html = `Hi there,
+                                <br/>
+                                Thank you for registering!
+                                <br/><br/>
+                                Please verify your email by typing the following token:
+                                <br/>
+                                Token: <b>${secretToken}</b>
+                                <br/>
+                                On the following page:
+                                <a href="http://localhost:3000/verify">http://localhost:3000/verify</a>
+                                <br/><br/>
+                                Have a pleasant day.`
+
+                    //config nodemailer
+                    var transporter = nodemailer.createTransport({
+                        service: 'Gmail',
+                        secure: true,
+                        port: 465,
+                        auth: {
+                            user: 'xuannam2512@gmail.com',
+                            pass: 'frhojmxzxlfbesar'
+                        }
+                    });
+                    //content mail
+                    var mailOptions = {
+                        from: 'xuannam2512@gmail.com',
+                        to: req.body.email,
+                        subject: 'Sending Email using Node.js',
+                        html: html
+                    };
+                    //send mail
+                    transporter.sendMail(mailOptions, function (error, info) {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                            req.flash('success_msg', 'Gửi mã bí mật thành công,hãy kiễm tra mail của bạn!');
+                            res.redirect('/verify-changepass');
+                        }
+                    });
+                })
+        })
+}
+
+//xac nhan ma bi mat khi quen mat khau
+exports.verifyAndChangePass_get = function(req, res) {
+    var flashMessages = res.locals.getMessages();
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
+    Provider.find({}) 
+    .exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }    
+
+        if (flashMessages.error) {
+            return res.render('./client/verifyAndChangePass', {
+                layout: 'layoutClient.hbs',
+                signinActive: true,
+                loginSuccess: false,
+                nameProvider: result,
+                showError: true,
+                error_msg: flashMessages.error,
+                amountInCart: amountInCart
+            });
+        } else {
+            if (flashMessages.success_msg) {
+                return res.render('./client/verifyAndChangePass', {
+                    layout: 'layoutClient.hbs',
+                    signinActive: true,
+                    loginSuccess: false,
+                    nameProvider: result,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg,
+                    amountInCart: amountInCart
+                });
+            } else {
+                return res.render('./client/verifyAndChangePass', {
+                    layout: 'layoutClient.hbs',
+                    signinActive: true,
+                    loginSuccess: false,
+                    nameProvider: result,
+                    amountInCart: amountInCart
+                });
+            }
+        }
+    })
+}
+
+exports.verifyAndChangePass_post = async (req, res, next) => {
+    try {
+        const { secretToken } = req.body;
+        const account = await Account.findOneAndUpdate({ 'secretToken': secretToken }, {
+            status: 'Active'
+        });
+
+        if (account == null) {
+            req.flash('error', 'Mã bí mật không đúng hãy kiễm tra lại');
+            return res.redirect('/verify-changepass');
+        }
+
+        var newPassword = req.body.newPassword;
+        var confirmPassword = req.body.confirmNewPassword;
+        if(newPassword == confirmPassword) {
+            console.log(account);
+            account.changePasswordNotCheckOldPass(newPassword, function(err) {
+                if (err) {
+                    console.log(err);
+                    req.flash('error', 'Mật khẩu cũ không đúng! Hãy thử lại!');
+                    return res.redirect('/verify-changepass');
+                }
+                console.log('success');
+                req.flash('success_msg', 'Kích hoạt thành công, bạn có thể đăng nhập để sử dụng');
+                return res.redirect('/');
+            })
+        } else {
+            req.flash('error', 'Mật khẩu không với với nhau, kiễm tra lại!');
+            return res.redirect('/verify-changepass');
+        }
+    } catch (error) {
+        return console.log(error);
+    }
+}
+
+//thong tin ca nhan
+exports.profile_get = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
     if (req.isAuthenticated()) {
         var username = req.user.username;
-        User.findById(req.user.user)
-        .exec(function(err, result) {
-            if(err) {
+
+        async.parallel({
+            providers: function(callback) {
+                Provider.find({})
+                .exec(callback);
+            },
+            user: function(callback) {
+                User.findById(req.user.user)
+                .exec(callback);
+            }
+        }, function(err, result) {
+            if (err) {
                 console.log(err);
                 return;
             }
             var flashMessages = res.locals.getMessages();
 
-            if(flashMessages.error) {
+            if (flashMessages.error) {
                 return res.render('./client/profile', {
                     layout: 'layoutClient.hbs',
                     personalActive: true,
                     loginSuccess: true,
-                    img: result.imgDisplay,
-                    fullname: result.fullname,
+                    img: result.user.imgDisplay,
+                    fullname: result.user.fullname,
                     username: username,
-                    email: result.email,
-                    tel: result.tel,
-                    address: result.address,
-                    id: result._id,
+                    email: result.user.email,
+                    tel: result.user.tel,
+                    address: result.user.address,
+                    id: result.user._id,
+                    nameProvider: result.providers,
                     showError: true,
-                    error_msg: flashMessages.error
+                    error_msg: flashMessages.error,
+                    amountInCart: amountInCart
                 });
             } else {
-                if(flashMessages.success_msg) {
+                if (flashMessages.success_msg) {
                     return res.render('./client/profile', {
                         layout: 'layoutClient.hbs',
                         personalActive: true,
                         loginSuccess: true,
-                        img: result.imgDisplay,
-                        fullname: result.fullname,
+                        img: result.user.imgDisplay,
+                        fullname: result.user.fullname,
                         username: username,
-                        email: result.email,
-                        tel: result.tel,
-                        address: result.address,
-                        id: result._id, 
+                        email: result.user.email,
+                        tel: result.user.tel,
+                        address: result.user.address,
+                        id: result.user._id,
+                        nameProvider: result.providers,
                         showSuccess: true,
-                        success_msg: flashMessages.success_msg
+                        success_msg: flashMessages.success_msg,
+                        amountInCart: amountInCart
                     });
                 } else {
                     return res.render('./client/profile', {
                         layout: 'layoutClient.hbs',
                         personalActive: true,
                         loginSuccess: true,
-                        img: result.imgDisplay,
-                        fullname: result.fullname,
+                        img: result.user.imgDisplay,
+                        fullname: result.user.fullname,
                         username: username,
-                        email: result.email,
-                        tel: result.tel,
-                        address: result.address,
-                        id: result._id
+                        email: result.user.email,
+                        tel: result.user.tel,
+                        address: result.user.address,
+                        nameProvider: result.providers,
+                        id: result.user._id,
+                        amountInCart: amountInCart
                     });
                 }
             }
-            
-        })
+        });
     } else {
         req.flash('error', 'Phải đăng nhập để được truy cập!');
         return res.redirect('/');
     }
 }
-
+//chinh sua thong tin ca nhna
 exports.editProfile_post = function (req, res) {
     Image.Upload(req, res, (err) => {
         if (err) {
@@ -502,8 +750,8 @@ exports.editProfile_post = function (req, res) {
     //res.send('abc');
 }
 
-exports.changPassword_post = function(req, res) {
-    if(!req.isAuthenticated()) {
+exports.changPassword_post = function (req, res) {
+    if (!req.isAuthenticated()) {
         req.flash('error', 'Hãy đăng nhập.');
     }
 
@@ -527,19 +775,23 @@ exports.changPassword_post = function(req, res) {
     }
 }
 
-exports.listMobile_provider = function(req, res) {
+//loc dien thoai theo nha cung cap
+exports.listMobile_provider = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        mobile: function(callback) {
-            Mobile.find({'provider': req.params.id}) 
-            .populate('provider')
-            .exec(callback);
+        mobile: function (callback) {
+            Mobile.find({ 'provider': req.params.id })
+                .populate('provider')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
@@ -547,57 +799,62 @@ exports.listMobile_provider = function(req, res) {
         var name = result.mobile[0].provider.name;
         var amount = result.mobile.length;
 
-        Specification.find({'mobileID': result.mobile})
-        .populate('mobileID')
-        .exec(function(err, result) {
-            if(err) {
-                console.log(err);
-                return;
-            }
-            console.log(result);
-            if(req.isAuthenticated()) {
-                return res.render('./client/listMobile_Provider', {
-                    layout: 'layoutClient.hbs',
-                    mobileActive: true,
-                    loginSuccess: true,
-                    nameProvider: listProvider,
-                    name: name,
-                    amount: amount,
-                    mobile: result
-                })
-            } else {
-                return res.render('./client/listMobile_Provider', {
-                    layout: 'layoutClient.hbs',
-                    mobileActive: true,
-                    loginSuccess: false,
-                    nameProvider: listProvider,
-                    name: name,
-                    amount: amount,
-                    mobile: result
-                })
-            }
-        });
-        
+        Specification.find({ 'mobileID': result.mobile })
+            .populate('mobileID')
+            .exec(function (err, result) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                console.log(result);
+                if (req.isAuthenticated()) {
+                    return res.render('./client/listMobile_Provider', {
+                        layout: 'layoutClient.hbs',
+                        mobileActive: true,
+                        loginSuccess: true,
+                        nameProvider: listProvider,
+                        name: name,
+                        amount: amount,
+                        mobile: result,
+                        amountInCart: amountInCart
+                    })
+                } else {
+                    return res.render('./client/listMobile_Provider', {
+                        layout: 'layoutClient.hbs',
+                        mobileActive: true,
+                        loginSuccess: false,
+                        nameProvider: listProvider,
+                        name: name,
+                        amount: amount,
+                        mobile: result,
+                        amountInCart: amountInCart
+                    });
+                }
+            });
+
     });
 }
+//danh sach toan bo san pham
+exports.listMobile = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
 
-exports.listMobile = function(req, res) {
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -605,7 +862,8 @@ exports.listMobile = function(req, res) {
                 nameProvider: result.provider,
                 name: 'TẤT CẢ ĐIỆN THOẠI',
                 amount: result.specification.length,
-                mobile: result.specification
+                mobile: result.specification,
+                amountInCart: amountInCart
             })
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -615,38 +873,42 @@ exports.listMobile = function(req, res) {
                 nameProvider: result.provider,
                 name: 'TẤT CẢ ĐIỆN THOẠI',
                 amount: result.specification.length,
-                mobile: result.specification
+                mobile: result.specification,
+                amountInCart: amountInCart
             })
         }
     })
 }
 
 //sản phẩm có giá dưới 1 triệu
-exports.listMobile_duoi1 = function(req, res) {
+exports.listMobile_duoi1 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price < 1000000) {
+            if (price < 1000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -654,7 +916,8 @@ exports.listMobile_duoi1 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI DƯỚI 1 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -664,38 +927,41 @@ exports.listMobile_duoi1 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI DƯỚI 1 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
 
 //sản phẩm có giá từ 1 - 3 triệu
-exports.listMobile_tu1den3 = function(req, res) {
+exports.listMobile_tu1den3 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price >= 1000000 && price < 3000000) {
+            if (price >= 1000000 && price < 3000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -703,7 +969,8 @@ exports.listMobile_tu1den3 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 1 ĐẾN 3 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -713,37 +980,40 @@ exports.listMobile_tu1den3 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 1 ĐẾN 3 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
 //sản phẩm có giá từ 3 - 6 triệu
-exports.listMobile_tu3den6 = function(req, res) {
+exports.listMobile_tu3den6 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price >= 3000000 && price < 6000000) {
+            if (price >= 3000000 && price < 6000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -751,7 +1021,8 @@ exports.listMobile_tu3den6 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 3 ĐẾN 6 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -761,37 +1032,40 @@ exports.listMobile_tu3den6 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 3 ĐẾN 6 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
 //sản phảm có giá từ 6 đến 10 triệu
-exports.listMobile_tu6den10 = function(req, res) {
+exports.listMobile_tu6den10 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price >= 6000000 && price < 10000000) {
+            if (price >= 6000000 && price < 10000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -799,7 +1073,8 @@ exports.listMobile_tu6den10 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 6 ĐẾN 10 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -809,37 +1084,40 @@ exports.listMobile_tu6den10 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 6 ĐẾN 10 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
 //sản phẩm có giá từ 10 đến 15 triệu
-exports.listMobile_tu10den15 = function(req, res) {
+exports.listMobile_tu10den15 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price >= 10000000 && price < 15000000) {
+            if (price >= 10000000 && price < 15000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -847,7 +1125,8 @@ exports.listMobile_tu10den15 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 10 ĐẾN 15 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -857,36 +1136,39 @@ exports.listMobile_tu10den15 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TỪ 10 ĐẾN 15 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
-exports.listMobile_tren15 = function(req, res) {
+exports.listMobile_tren15 = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        provider: function(callback) {
+        provider: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        specification: function(callback) {
+        specification: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback);
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
         var listMobile = []
-        for( var i = 0; i < result.specification.length; i++) {
+        for (var i = 0; i < result.specification.length; i++) {
             var price = parseInt(result.specification[i].mobileID.salePrice);
-            if(price >= 15000000) {
+            if (price >= 15000000) {
                 listMobile.push(result.specification[i]);
             }
         }
 
-        if(req.isAuthenticated()) {
+        if (req.isAuthenticated()) {
             return res.render('./client/listMobile_Provider', {
                 layout: 'layoutClient.hbs',
                 mobileActive: true,
@@ -894,7 +1176,8 @@ exports.listMobile_tren15 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TRÊN 15 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         } else {
             return res.render('./client/listMobile_Provider', {
@@ -904,240 +1187,254 @@ exports.listMobile_tren15 = function(req, res) {
                 nameProvider: result.provider,
                 name: 'ĐIỆN THOẠI TRÊN 15 TRIỆU',
                 amount: listMobile.length,
-                mobile: listMobile
+                mobile: listMobile,
+                amountInCart: amountInCart
             });
         }
     });
 }
 
-exports.mobileDetail = function(req, res) {
-
+exports.mobileDetail = function (req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
     async.parallel({
-        providers: function(callback) {
+        providers: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         },
-        comments: function(callback) {
-            Comment.find({'mobileID': req.params.id})
-            .populate('info')
-            .populate('mobileID')
-            .exec(callback);
+        comments: function (callback) {
+            Comment.find({ 'mobileID': req.params.id })
+                .populate('info')
+                .populate('mobileID')
+                .exec(callback);
         },
-        mobile: function(callback) {
+        mobile: function (callback) {
             Mobile.findById(req.params.id)
-            .populate('provider')
-            .exec(callback);
+                .populate('provider')
+                .exec(callback);
         },
-        specifications: function(callback) {
-            Specification.find({'mobileID': req.params.id})
-            .populate('mobileID')
-            .exec(callback);
+        specifications: function (callback) {
+            Specification.find({ 'mobileID': req.params.id })
+                .populate('mobileID')
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
-        
+
         var comments = result.comments;
         var providers = result.providers;
         var specifications = result.specifications;
         var mobile = result.mobile;
 
-        Mobile.find({'provider': mobile.provider})
-        .exec(function(err, result) {
-            if(err) {
-                console.log(err);
-                return;
-            }
-            Specification.find({'mobileID': result})
-            .populate('mobileID')
-            .exec(function(err, result) {
-                if(err) {
+        Mobile.find({ 'provider': mobile.provider })
+            .exec(function (err, result) {
+                if (err) {
                     console.log(err);
                     return;
                 }
+                Specification.find({ 'mobileID': result })
+                    .populate('mobileID')
+                    .exec(function (err, result) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
 
-                var flashMessages = res.locals.getMessages()
-                if(flashMessages.error) {
-                    if(req.isAuthenticated()) {
-                        return res.render('./client/mobileDetail', {
-                            layout: 'layoutClient.hbs',
-                            mobileActive: true,
-                            loginSuccess: true,
-                            nameProvider: providers,
-                            mobileName: mobile.mobileName,
-                            img1: specifications[0].imgDisplay[0],
-                            img2: specifications[0].imgDisplay[1],
-                            img3: specifications[0].imgDisplay[2],
-                            price: mobile.salePrice,
-                            screen: specifications[0].screen,
-                            operator: specifications[0].operationsystem,
-                            frontCamera: specifications[0].camerafont,
-                            behindCamera: specifications[0].camerabehind,
-                            cpu: specifications[0].cpu,
-                            ram: specifications[0].ram,
-                            memories: specifications[0].memories,
-                            memorycard: specifications[0].memorycard,
-                            sim: specifications[0].sim,
-                            mobile: result,
-                            comments: comments,
-                            showError: true,
-                            error_msg: flashMessages.error
-                        });
-                    } else {
-                        return res.render('./client/mobileDetail', {
-                            layout: 'layoutClient.hbs',
-                            mobileActive: true,
-                            loginSuccess: false,
-                            nameProvider: providers,
-                            mobileName: mobile.mobileName,
-                            img1: specifications[0].imgDisplay[0],
-                            img2: specifications[0].imgDisplay[1],
-                            img3: specifications[0].imgDisplay[2],
-                            price: mobile.salePrice,
-                            screen: specifications[0].screen,
-                            operator: specifications[0].operationsystem,
-                            frontCamera: specifications[0].camerafont,
-                            behindCamera: specifications[0].camerabehind,
-                            cpu: specifications[0].cpu,
-                            ram: specifications[0].ram,
-                            memories: specifications[0].memories,
-                            memorycard: specifications[0].memorycard,
-                            sim: specifications[0].sim,
-                            mobile: result,
-                            comments: comments, 
-                            showError: true,
-                            error_msg: flashMessages.error
-                        });
-                    }
-                } else {
-                    if (flashMessages.success_msg) {
-                        if(req.isAuthenticated()) {
-                            return res.render('./client/mobileDetail', {
-                                layout: 'layoutClient.hbs',
-                                mobileActive: true,
-                                loginSuccess: true,
-                                nameProvider: providers,
-                                mobileName: mobile.mobileName,
-                                img1: specifications[0].imgDisplay[0],
-                                img2: specifications[0].imgDisplay[1],
-                                img3: specifications[0].imgDisplay[2],
-                                price: mobile.salePrice,
-                                screen: specifications[0].screen,
-                                operator: specifications[0].operationsystem,
-                                frontCamera: specifications[0].camerafont,
-                                behindCamera: specifications[0].camerabehind,
-                                cpu: specifications[0].cpu,
-                                ram: specifications[0].ram,
-                                memories: specifications[0].memories,
-                                memorycard: specifications[0].memorycard,
-                                sim: specifications[0].sim,
-                                mobile: result,
-                                comments: comments, 
-                                showSuccess: true,
-                                success_msg: flashMessages.success_msg
-                            });
+                        var flashMessages = res.locals.getMessages()
+                        if (flashMessages.error) {
+                            if (req.isAuthenticated()) {
+                                return res.render('./client/mobileDetail', {
+                                    layout: 'layoutClient.hbs',
+                                    mobileActive: true,
+                                    loginSuccess: true,
+                                    nameProvider: providers,
+                                    mobileName: mobile.mobileName,
+                                    img1: specifications[0].imgDisplay[0],
+                                    img2: specifications[0].imgDisplay[1],
+                                    img3: specifications[0].imgDisplay[2],
+                                    price: mobile.salePrice,
+                                    id: mobile._id,
+                                    screen: specifications[0].screen,
+                                    operator: specifications[0].operationsystem,
+                                    frontCamera: specifications[0].camerafont,
+                                    behindCamera: specifications[0].camerabehind,
+                                    cpu: specifications[0].cpu,
+                                    ram: specifications[0].ram,
+                                    memories: specifications[0].memories,
+                                    memorycard: specifications[0].memorycard,
+                                    sim: specifications[0].sim,
+                                    mobile: result,
+                                    comments: comments,
+                                    showError: true,
+                                    error_msg: flashMessages.error,
+                                    amountInCart: amountInCart
+                                });
+                            } else {
+                                return res.render('./client/mobileDetail', {
+                                    layout: 'layoutClient.hbs',
+                                    mobileActive: true,
+                                    loginSuccess: false,
+                                    nameProvider: providers,
+                                    mobileName: mobile.mobileName,
+                                    img1: specifications[0].imgDisplay[0],
+                                    img2: specifications[0].imgDisplay[1],
+                                    img3: specifications[0].imgDisplay[2],
+                                    price: mobile.salePrice,
+                                    id: mobile._id,
+                                    screen: specifications[0].screen,
+                                    operator: specifications[0].operationsystem,
+                                    frontCamera: specifications[0].camerafont,
+                                    behindCamera: specifications[0].camerabehind,
+                                    cpu: specifications[0].cpu,
+                                    ram: specifications[0].ram,
+                                    memories: specifications[0].memories,
+                                    memorycard: specifications[0].memorycard,
+                                    sim: specifications[0].sim,
+                                    mobile: result,
+                                    comments: comments,
+                                    showError: true,
+                                    error_msg: flashMessages.error,
+                                    amountInCart: amountInCart
+                                });
+                            }
                         } else {
-                            return res.render('./client/mobileDetail', {
-                                layout: 'layoutClient.hbs',
-                                mobileActive: true,
-                                loginSuccess: false,
-                                nameProvider: providers,
-                                mobileName: mobile.mobileName,
-                                img1: specifications[0].imgDisplay[0],
-                                img2: specifications[0].imgDisplay[1],
-                                img3: specifications[0].imgDisplay[2],
-                                price: mobile.salePrice,
-                                screen: specifications[0].screen,
-                                operator: specifications[0].operationsystem,
-                                frontCamera: specifications[0].camerafont,
-                                behindCamera: specifications[0].camerabehind,
-                                cpu: specifications[0].cpu,
-                                ram: specifications[0].ram,
-                                memories: specifications[0].memories,
-                                memorycard: specifications[0].memorycard,
-                                sim: specifications[0].sim,
-                                mobile: result,
-                                comments: comments,
-                                showSuccess: true,
-                                success_msg: flashMessages.success_msg
-                            });
+                            if (flashMessages.success_msg) {
+                                if (req.isAuthenticated()) {
+                                    return res.render('./client/mobileDetail', {
+                                        layout: 'layoutClient.hbs',
+                                        mobileActive: true,
+                                        loginSuccess: true,
+                                        nameProvider: providers,
+                                        mobileName: mobile.mobileName,
+                                        img1: specifications[0].imgDisplay[0],
+                                        img2: specifications[0].imgDisplay[1],
+                                        img3: specifications[0].imgDisplay[2],
+                                        price: mobile.salePrice,
+                                        id: mobile._id,
+                                        screen: specifications[0].screen,
+                                        operator: specifications[0].operationsystem,
+                                        frontCamera: specifications[0].camerafont,
+                                        behindCamera: specifications[0].camerabehind,
+                                        cpu: specifications[0].cpu,
+                                        ram: specifications[0].ram,
+                                        memories: specifications[0].memories,
+                                        memorycard: specifications[0].memorycard,
+                                        sim: specifications[0].sim,
+                                        mobile: result,
+                                        comments: comments,
+                                        showSuccess: true,
+                                        success_msg: flashMessages.success_msg,
+                                        amountInCart: amountInCart
+                                    });
+                                } else {
+                                    return res.render('./client/mobileDetail', {
+                                        layout: 'layoutClient.hbs',
+                                        mobileActive: true,
+                                        loginSuccess: false,
+                                        nameProvider: providers,
+                                        mobileName: mobile.mobileName,
+                                        img1: specifications[0].imgDisplay[0],
+                                        img2: specifications[0].imgDisplay[1],
+                                        img3: specifications[0].imgDisplay[2],
+                                        price: mobile.salePrice,
+                                        id: mobile._id,
+                                        screen: specifications[0].screen,
+                                        operator: specifications[0].operationsystem,
+                                        frontCamera: specifications[0].camerafont,
+                                        behindCamera: specifications[0].camerabehind,
+                                        cpu: specifications[0].cpu,
+                                        ram: specifications[0].ram,
+                                        memories: specifications[0].memories,
+                                        memorycard: specifications[0].memorycard,
+                                        sim: specifications[0].sim,
+                                        mobile: result,
+                                        comments: comments,
+                                        showSuccess: true,
+                                        success_msg: flashMessages.success_msg,
+                                        amountInCart: amountInCart
+                                    });
+                                }
+                            } else {
+                                if (req.isAuthenticated()) {
+                                    return res.render('./client/mobileDetail', {
+                                        layout: 'layoutClient.hbs',
+                                        mobileActive: true,
+                                        loginSuccess: true,
+                                        nameProvider: providers,
+                                        mobileName: mobile.mobileName,
+                                        img1: specifications[0].imgDisplay[0],
+                                        img2: specifications[0].imgDisplay[1],
+                                        img3: specifications[0].imgDisplay[2],
+                                        price: mobile.salePrice,
+                                        id: mobile._id,
+                                        screen: specifications[0].screen,
+                                        operator: specifications[0].operationsystem,
+                                        frontCamera: specifications[0].camerafont,
+                                        behindCamera: specifications[0].camerabehind,
+                                        cpu: specifications[0].cpu,
+                                        ram: specifications[0].ram,
+                                        memories: specifications[0].memories,
+                                        memorycard: specifications[0].memorycard,
+                                        sim: specifications[0].sim,
+                                        mobile: result,
+                                        comments: comments,
+                                        amountInCart: amountInCart
+                                    });
+                                } else {
+                                    return res.render('./client/mobileDetail', {
+                                        layout: 'layoutClient.hbs',
+                                        mobileActive: true,
+                                        loginSuccess: false,
+                                        nameProvider: providers,
+                                        mobileName: mobile.mobileName,
+                                        img1: specifications[0].imgDisplay[0],
+                                        img2: specifications[0].imgDisplay[1],
+                                        img3: specifications[0].imgDisplay[2],
+                                        price: mobile.salePrice,
+                                        id: mobile._id,
+                                        screen: specifications[0].screen,
+                                        operator: specifications[0].operationsystem,
+                                        frontCamera: specifications[0].camerafont,
+                                        behindCamera: specifications[0].camerabehind,
+                                        cpu: specifications[0].cpu,
+                                        ram: specifications[0].ram,
+                                        memories: specifications[0].memories,
+                                        memorycard: specifications[0].memorycard,
+                                        sim: specifications[0].sim,
+                                        mobile: result,
+                                        comments: comments,
+                                        amountInCart: amountInCart
+                                    });
+                                }
+                            }
                         }
-                    } else {
-                        if(req.isAuthenticated()) {
-                            return res.render('./client/mobileDetail', {
-                                layout: 'layoutClient.hbs',
-                                mobileActive: true,
-                                loginSuccess: true,
-                                nameProvider: providers,
-                                mobileName: mobile.mobileName,
-                                img1: specifications[0].imgDisplay[0],
-                                img2: specifications[0].imgDisplay[1],
-                                img3: specifications[0].imgDisplay[2],
-                                price: mobile.salePrice,
-                                screen: specifications[0].screen,
-                                operator: specifications[0].operationsystem,
-                                frontCamera: specifications[0].camerafont,
-                                behindCamera: specifications[0].camerabehind,
-                                cpu: specifications[0].cpu,
-                                ram: specifications[0].ram,
-                                memories: specifications[0].memories,
-                                memorycard: specifications[0].memorycard,
-                                sim: specifications[0].sim,
-                                mobile: result,
-                                comments: comments
-                            });
-                        } else {
-                            return res.render('./client/mobileDetail', {
-                                layout: 'layoutClient.hbs',
-                                mobileActive: true,
-                                loginSuccess: false,
-                                nameProvider: providers,
-                                mobileName: mobile.mobileName,
-                                img1: specifications[0].imgDisplay[0],
-                                img2: specifications[0].imgDisplay[1],
-                                img3: specifications[0].imgDisplay[2],
-                                price: mobile.salePrice,
-                                screen: specifications[0].screen,
-                                operator: specifications[0].operationsystem,
-                                frontCamera: specifications[0].camerafont,
-                                behindCamera: specifications[0].camerabehind,
-                                cpu: specifications[0].cpu,
-                                ram: specifications[0].ram,
-                                memories: specifications[0].memories,
-                                memorycard: specifications[0].memorycard,
-                                sim: specifications[0].sim,
-                                mobile: result,
-                                comments: comments
-                            });
-                        }
-                    }
-                }
+                    })
             })
-        })
     })
 }
 
 //binh luan
-exports.comment_post = function(req, res) {
-    if(req.isAuthenticated()) {
+exports.comment_post = function (req, res) {
+    if (req.isAuthenticated()) {
         var mobileID = req.params.id;
         var userID = req.user.user;
         var message = req.body.message;
 
         async.parallel({
-            mobile: function(callback) {
+            mobile: function (callback) {
                 Mobile.findById(req.params.id)
-                .populate('provider')
-                .exec(callback);
-            }, 
-            user: function(callback) {
+                    .populate('provider')
+                    .exec(callback);
+            },
+            user: function (callback) {
                 User.findById(userID)
-                .exec(callback);
+                    .exec(callback);
             }
-        }, function(err, result) {
-            if(err) {
+        }, function (err, result) {
+            if (err) {
                 console.log(err);
                 return;
             }
@@ -1150,8 +1447,8 @@ exports.comment_post = function(req, res) {
             }
 
             var newComment = new Comment(commentDetail);
-            newComment.save(function(err, result) {
-                if(err) {
+            newComment.save(function (err, result) {
+                if (err) {
                     console.log(err);
                     return;
                 }
@@ -1167,61 +1464,67 @@ exports.comment_post = function(req, res) {
 }
 
 //tim kiem
-exports.search_post = function(req, res) {
+exports.search_post = function (req, res) {
     var key = req.body.key;
     var mobileResults = [];
     var providerResults = [];
     var upperKey = key.toUpperCase();
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
 
     async.parallel({
-        specifications: function(callback) {
+        specifications: function (callback) {
             Specification.find({})
-            .populate('mobileID')
-            .exec(callback)
+                .populate('mobileID')
+                .exec(callback)
         },
-        providers: function(callback) {
+        providers: function (callback) {
             Provider.find({})
-            .exec(callback);
+                .exec(callback);
         }
-    }, function(err, result) {
-        if(err) {
+    }, function (err, result) {
+        if (err) {
             console.log(err);
             return;
         }
 
         //tim kiem theo dien thoai
-        for(var i = 0; i < result.specifications.length; i++) {
+        for (var i = 0; i < result.specifications.length; i++) {
             var mobileName = result.specifications[i].mobileID.mobileName;
             console.log(mobileName);
-            if(mobileName.search(upperKey) >= 0) {
+            if (mobileName.search(upperKey) >= 0) {
                 mobileResults.push(result.specifications[i]);
             }
         }
 
         //tim kiem theo nha cung cap
-        for(var i = 0; i < result.providers.length; i++) {
+        for (var i = 0; i < result.providers.length; i++) {
             var name = result.providers[i].name;
-            if(name.search(upperKey) >= 0) {
+            if (name.search(upperKey) >= 0) {
                 providerResults.push(result.providers[i]);
             }
         }
-        if(req.isAuthenticated()) {
-            if(providerResults.length == 0 && mobileResults.length == 0) {
+        if (req.isAuthenticated()) {
+            if (providerResults.length == 0 && mobileResults.length == 0) {
                 res.render('./client/search', {
                     layout: 'layoutClient.hbs',
                     loginSuccess: true,
                     amount: '0',
-                    noresult: true
+                    noresult: true,
+                    nameProvider: result.providers,
+                    amountInCart: amountInCart
                 })
             } else {
-                if(providerResults.length > 0) {
+                if (providerResults.length > 0) {
                     return res.render('./client/search', {
                         layout: 'layoutClient.hbs',
                         homeActive: true,
                         loginSuccess: true,
                         amount: providerResults.length.toString(),
                         provider: true,
-                        providers: providerResults
+                        providers: providerResults,
+                        nameProvider: result.providers,
+                        amountInCart: amountInCart
                     });
                 } else {
                     return res.render('./client/search', {
@@ -1230,27 +1533,33 @@ exports.search_post = function(req, res) {
                         loginSuccess: true,
                         amount: mobileResults.length.toString(),
                         mobile: true,
-                        mobiles: mobileResults
+                        mobiles: mobileResults,
+                        nameProvider: result.providers,
+                        amountInCart: amountInCart
                     });
                 }
             }
         } else {
-            if(providerResults.length == 0 && mobileResults.length == 0) {
+            if (providerResults.length == 0 && mobileResults.length == 0) {
                 res.render('./client/search', {
                     layout: 'layoutClient.hbs',
                     loginSuccess: false,
                     amount: '0',
-                    noresult: true
+                    noresult: true,
+                    nameProvider: result.providers,
+                    amountInCart: amountInCart
                 })
             } else {
-                if(providerResults.length > 0) {
+                if (providerResults.length > 0) {
                     return res.render('./client/search', {
                         layout: 'layoutClient.hbs',
                         homeActive: true,
                         loginSuccess: false,
                         amount: providerResults.length,
                         provider: true,
-                        providers: providerResults
+                        providers: providerResults,
+                        nameProvider: result.providers,
+                        amountInCart: amountInCart
                     });
                 } else {
                     return res.render('./client/search', {
@@ -1259,10 +1568,353 @@ exports.search_post = function(req, res) {
                         loginSuccess: false,
                         amount: mobileResults.length,
                         mobile: true,
-                        mobiles: mobileResults
+                        mobiles: mobileResults,
+                        nameProvider: result.providers,
+                        amountInCart: amountInCart
                     });
                 }
             }
         }
     })
+}
+
+//gio hang
+//them vao gio hang
+exports.addToCartShopping_post = function(req, res) {
+    var mobileID = req.params.id;
+    var amount = req.body.amount;
+    console.log(amount);
+    console.log(mobileID);
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+
+    async.parallel({
+        mobile: function(callback) {
+            Mobile.findById(mobileID)
+            .populate('provider')
+            .exec(callback);
+        }, 
+        specification: function(callback) {
+            Specification.findOne({'mobileID': mobileID})
+            .populate('mobileID')
+            .exec(callback);
+        }
+    }, function(err, result) {
+        if(err) {
+            console.log(err);
+            return;
+        }
+        var provider = result.mobile.provider.name;
+        var img = result.specification.imgDisplay[0];
+        cart.add(result.mobile, mobileID, amount, provider, img);
+        req.session.cart = cart;
+        res.redirect('/dien-thoai/' + req.params.id);
+    })
+}
+//hien thi tho hang
+exports.cartShopping_get = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+    
+    var flashMessages = res.locals.getMessages();
+
+    Provider.find({})
+    .exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+        var providers = result;
+        if(req.isAuthenticated()) {
+            User.findById(req.user.user)
+            .exec(function(err, user) {
+                if(err) {
+                    console.log(err);
+                    return;
+                }
+                if(flashMessages.success_msg) {
+                    return res.render('./client/cart', {
+                        layout: 'layoutClient.hbs',
+                        cartActive: true,
+                        loginSuccess: true,
+                        amountInCart: amountInCart,
+                        cartShopping: cart.items,
+                        name: user.fullname,
+                        address: user.address,
+                        tel: user.tel,
+                        showSuccess: true,
+                        success_msg: flashMessages.success_msg,
+                        nameProvider: providers
+                    });
+                } else {
+                    if(flashMessages.error) {
+                        return res.render('./client/cart', {
+                            layout: 'layoutClient.hbs',
+                            cartActive: true,
+                            loginSuccess: true,
+                            amountInCart: amountInCart,
+                            cartShopping: cart.items,
+                            name: user.fullname,
+                            address: user.address,
+                            tel: user.tel, 
+                            showError: true,
+                            error_msg: flashMessages.error,
+                            nameProvider: providers
+                        });
+                    } else {
+                        return res.render('./client/cart', {
+                            layout: 'layoutClient.hbs',
+                            cartActive: true,
+                            loginSuccess: true,
+                            amountInCart: amountInCart,
+                            cartShopping: cart.items,
+                            name: user.fullname,
+                            address: user.address,
+                            tel: user.tel,
+                            nameProvider: providers
+                        });
+                    }
+                }
+            })  
+        } else {
+            if(flashMessages.error) {
+                return res.render('./client/cart', {
+                    layout: 'layoutClient.hbs',
+                    cartActive: true,
+                    amountInCart: amountInCart,
+                    cartShopping: cart.items,
+                    showError: true,
+                    error_msg: flashMessages.error,
+                    nameProvider: providers
+                });
+            } else {
+                return res.render('./client/cart', {
+                    layout: 'layoutClient.hbs',
+                    cartActive: true,
+                    amountInCart: amountInCart,
+                    cartShopping: cart.items,
+                    nameProvider: providers
+                });
+            }
+        }
+    })
+}
+//thanh toan gio hang
+exports.cartShopping_post = function(req, res) {
+    if(req.isAuthenticated()) {
+        var cart = new Cart(req.session.cart ? req.session.cart : {});
+        var name = req.body.name;
+        var address = req.body.address;
+        var tel = req.body.tel;
+
+        var mobiles = [];
+        var amounts = [];
+        var items = cart.generateArray();
+
+        for(var i = 0; i < items.length; i++) {
+            mobiles.push(items[i].item);
+            amounts.push(items[i].qty);
+
+            if ((parseInt(items[i].item.sold) + parseInt(items[i].qty)) > parseInt(items[i].item.imported)) {
+                console.log('khong du hang');
+                req.flash('error', 'điện thoại ' + items[i].item.mobileName + ' hiện không đủ hàng trong kho, bạn chỉ có thể mua tối đa ' 
+                + (parseInt(items[i].item.imported) - parseInt(items[i].item.sold)) + ' cái');
+                return res.redirect('/gio-hang');
+            }
+        }
+
+        saleDetail = {
+            mobileSole: mobiles,
+            mobileAmount: amounts,
+            user: req.user,
+            status: 'Chưa giao',
+            date: Date.now(),
+            nameReciever: name,
+            telReciever: tel,
+            addressReciever: address,
+            totalPrice: cart.totalPrice
+        }
+
+        var newSale = new Sale(saleDetail);
+        newSale.save(function(err, result) {
+            if(err) {
+                return console.log(err);
+            }
+            cart.removeAll();
+            req.session.cart = null;
+
+            for (var i in mobiles) {
+                Mobile.findByIdAndUpdate(mobiles[i]._id, {
+                    sold: parseInt(mobiles[i].sold) + parseInt(amounts[i])
+                }).exec(function(err, result) {
+                    if(err) {
+                        return console.log(err);
+                    }
+                    console.log(result);
+                });
+            }
+
+            req.flash('success_msg', 'Thanh toán thành công, hàng sẽ được giao trong vài ngày tới!');
+            res.redirect('/gio-hang');
+        })
+    } else {
+        req.flash('error', 'Đăng nhập để có thể thanh toán.');
+        res.redirect('/gio-hang');
+    }
+}
+//xoa hang trong gio
+exports.deleteCart = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+
+    cart.removeItem(req.params.id);
+    req.session.cart = cart;
+    res.redirect('/gio-hang');
+}
+//tang so luong hang trong gio tung 1 
+exports.increaseByOne = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+
+    cart.increaseByOne(req.params.id);
+    req.session.cart = cart;
+    res.redirect('/gio-hang');
+}
+//giam so luong hang trong gio tung 1
+exports.decreaseByOne = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+
+    cart.decreaseByOne(req.params.id);
+    req.session.cart = cart;
+    res.redirect('/gio-hang');
+}
+
+//lich su mua hang
+exports.saleHistory_get = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+    var flashMessages = res.locals.getMessages();
+    
+    async.parallel({
+        providers: function(callback) {
+            Provider.find({})
+            .exec(callback);
+        },
+        sale: function(callback) {
+            Sale.find({'user': req.user})
+            .populate('user')
+            .exec(callback);
+        }
+    }, function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+        if(flashMessages.error) {
+            return res.render('./client/saleHistory', {
+                layout: 'layoutClient.hbs',
+                loginSuccess: true,
+                personalActive: true,
+                amountInCart: amountInCart,
+                tables: result.sale, 
+                nameProvider: result.providers,
+                showError: flashMessages.error
+            });
+        } else {
+            if(flashMessages.success_msg) {
+                return res.render('./client/saleHistory', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: true,
+                    personalActive: true,
+                    amountInCart: amountInCart,
+                    tables: result.sale, 
+                    nameProvider: result.providers,
+                    showSuccess: true,
+                    success_msg: flashMessages.success_msg
+                });
+            } else {
+                return res.render('./client/saleHistory', {
+                    layout: 'layoutClient.hbs',
+                    loginSuccess: true,
+                    personalActive: true,
+                    amountInCart: amountInCart,
+                    tables: result.sale, 
+                    nameProvider: result.providers
+                });
+            }
+        }
+        
+    });
+}
+
+//chi tiet do hang
+exports.saleHistoryDetail_get = function(req, res) {
+    var cart = new Cart(req.session.cart ? req.session.cart : {});
+    var amountInCart = cart.totalQty;
+
+    async.parallel({
+        sale: function (callback) {
+            Sale.findById(req.params.id)
+                .populate('user')
+                .populate('mobileSole')
+                .exec(callback);
+        },
+        providers: function (callback) {
+            Provider.find({})
+                .exec(callback);
+        }
+    }, function (err, result) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        var mobiles = result.sale.mobileSole;
+        var amounts = result.sale.mobileAmount;
+        var date = result.sale.date;
+        var providers = [];
+        var tables = [];
+
+        for (var j = 0; j < mobiles.length; j++) {
+            for (var i = 0; i < result.providers.length; i++) {
+                if (toString(mobiles[j].provider) == toString(result.providers[i]._id)) {
+                    providers.push(result.providers[i]);
+                    break;
+                }
+            }
+        }
+
+        for(var i = 0; i < mobiles.length; i++) {
+            var table = {
+                mobiles: mobiles[i],
+                provider: providers[i],
+                amount: amounts[i]
+            }
+
+            tables.push(table);
+        }
+
+        console.log(tables);
+
+        res.render('./client/saleHistoryDetail', {
+            layout: 'layoutClient.hbs',
+            personalActive: true,
+            saleActive: true,
+            loginSuccess: true,
+            date: date,
+            tables: tables,
+            nameProvider: result.providers,
+            amountInCart: amountInCart
+        });
+    });
+}
+
+//da nhan hang
+exports.recievedMobile_get = function(req, res) {
+    var id = req.params.id;
+
+    Sale.findByIdAndUpdate(id, {
+        status: 'Đã nhận'
+    }).exec(function(err, result) {
+        if(err) {
+            return console.log(err);
+        }
+        console.log(result);
+        req.flash('success_msg', 'Đơn hàng ' + result.date + ' đã nhận.');
+        return res.redirect('/lich-su-mua-hang');
+    });
 }

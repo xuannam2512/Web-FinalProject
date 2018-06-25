@@ -11,6 +11,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var expressHbs = require('express-handlebars');
 var expressValidator = require('express-validator');
+var MongoStore = require('connect-mongo')(session);
 var Account = require('./models/Account');
 
 var client = require('./routes/client');
@@ -44,7 +45,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(require('express-session')({
   secret: 'keyboard cat',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
+  cookie: { maxAge: 180 * 60 * 1000 } // Maximum Time Session: Minutes * Seconds * Miliseconds
 }));
 //express validator
 app.use(expressValidator({
@@ -69,6 +72,7 @@ app.use(function(req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
+  res.locals.session = req.session;
   next();
 })
 

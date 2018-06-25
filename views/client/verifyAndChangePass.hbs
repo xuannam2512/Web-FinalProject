@@ -1,0 +1,42 @@
+{{#if showError}}
+    {{#each error_msg}}
+        <div class="alert alert-danger">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+    {{#if showSuccess}}
+    {{#each success_msg}}
+        <div class="alert alert-success">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+<div class="container rounded mt-md-3 border">
+    <h4 class="mt-md-3 ml-md-3">Xác thực tài khoảng, hãy kiễm tra email.</h4>
+    <hr>
+    <br>
+    <form action="" method="POST">
+        <label for="secretToken">
+            <b>Mã bí mật</b>
+        </label>
+        <input type="text" class="form-control" name="secretToken" required>
+        <br>
+
+        <label for="newPassword">
+            <b>Mật khẩu</b>
+        </label>
+        <input type="password" class="form-control" name="newPassword" placeholder="Nhập mật khẩu mới" required>
+        <br>
+        <label for="newPassword">
+            <b>Xác nhận lại mật khẩu</b>
+        </label>
+        <input type="password" class="form-control" name="confirmNewPassword" placeholder="xác nhận lại mật khẩu mới" required>
+        <br>
+        <button class="btn btn-primary rounded border w-25">Hoàn Tất</button>
+    </form>
+    <br>
+</div>
+<br>

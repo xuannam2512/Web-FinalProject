@@ -1,0 +1,98 @@
+{{#if showError}}
+    {{#each error_msg}}
+        <div class="alert alert-danger">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+    {{#if showSuccess}}
+    {{#each success_msg}}
+        <div class="alert alert-success">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+<div class="container bg-light border rounded mt-md-3">
+    <h4 class="mt-md-3 ml-md-3">Giỏ Hàng</h4>
+    <hr>
+    <br>
+    {{#each cartShopping}}
+    <div class="row">
+        <div class="col-sm-3 text-center">
+            <img src="{{this.img}}" alt="" height="150" width="150">
+        </div>
+        <div class="col-sm-4">
+            <a href="" class="nav-link">
+                <h5>{{this.item.mobileName}}</h5>
+            </a>
+            <p class="ml-md-3">CUNG CẤP BỞI {{this.provider}}</p>
+        </div>
+        <div class="col-sm-3">
+            <p>
+                <b>Giá:</b> {{this.item.salePrice}}</p>
+            <div class="row ml-md-0">
+                <a href="/gio-hang/giam-1/{{this.item._id}}" class="btn border bg-white" style="width: 35px;">-</a>
+                <input id="amount" class="form-control" type="text" min="1" max="100" value="{{this.qty}}" style="width: 35px; text-align: center;"
+                    readonly name="amount">
+                <a href="/gio-hang/tang-1/{{this.item._id}}" class="btn border bg-white" style="width: 35px;">+</a>
+            </div>
+            <br>
+            <p>
+                <b>Tổng:</b> {{this.price}}</p>
+        </div>
+        <div class="col-sm-2">
+            <a href="/gio-hang/delete/{{this.item._id}}" class="btn btn-danger w-100">Xóa</a>
+        </div>
+    </div>
+    <br>
+    <hr><br>
+    {{/each}}
+    <div class="container text-center">
+        <button class="btn btn-primary w-50" data-toggle="modal" data-target="#modalPaying">
+            <b>Thanh Toán Khi Nhận Hàng</b>
+        </button>
+    </div>
+    <br>
+</div>
+<br>
+
+{{!-- thanh toan modal --}}
+<div class="modal fade" id="modalPaying">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header text-center">
+                <h4 class="modal-title">Xác Nhận Thanh Toán</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <form action="" method="POST">
+                    <label for="name">
+                        <b>Tên người nhận</b>
+                    </label>
+                    <input type="text" class="form-control" placeholder="Nhập tên đăng nhập" name="name" value="{{name}}">
+                    <br>
+                    <label for="address">
+                        <b>Địa chỉ nhận</b>
+                    </label>
+                    <input type="text" class="form-control" placeholder="Nhập mật khẩu" name="address" value="{{address}}">
+                    <br>
+                    <label for="address">
+                        <b>Điện thoại</b>
+                    </label>
+                    <input type="text" class="form-control" placeholder="Nhập mật khẩu" name="tel" value="{{tel}}">
+                    <br>
+                    <button type="submit" class="btn btn-primary w-100 h-100 text-light rounded">
+                        <b>Thanh toán khi nhận hàng</b>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

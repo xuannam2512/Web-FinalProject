@@ -26,9 +26,16 @@ function removeImage() {
     $('#imgUser').attr('src', '');
 }
 
-$(function() {
-    $('#Username').on('keypress', function(e) {
-        if (e.which == 32)
-            return false;
-    });
-});
+function increaseAmount() {
+    var amount = document.getElementById("amount").value;
+    $('#amount').attr('value', parseInt(amount) + 1);
+}
+
+function decreaseAmount() {
+    var amount = document.getElementById("amount").value;
+    if (parseInt(amount) <= 1) {
+        
+    } else {
+        $('#amount').attr('value', parseInt(amount) - 1);
+    }
+}

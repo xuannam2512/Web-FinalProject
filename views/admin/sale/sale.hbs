@@ -1,0 +1,59 @@
+{{#if showError}}
+    {{#each error_msg}}
+        <div class="alert alert-danger">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+    {{#if showSuccess}}
+    {{#each success_msg}}
+        <div class="alert alert-success">
+            {{this}}
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+        {{/each}}
+    {{/if}}
+<div class="container bg-light rounded border mt-md-3">
+    <h4 class="mt-md-3 ml-md-3">Lịch Sử Mua Hàng</h4>
+    <hr><br>
+    <div class="panel-body">
+        <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Nguời nhận</th>
+                    <th>Địa chỉ</th>
+                    <th>Số điện thoại</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Chi tiết</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tables}}
+                <tr>
+                    <td>
+                        <div class="card-block p-1">
+                            <p style="width: 200px;" class="card-subtitle text-truncate">{{this.date}}</p>
+                        </div>
+                    </td>
+                    <td>{{this.nameReciever}}</td>
+                    <td>{{this.addressReciever}}</td>
+                    <td>{{this.telReciever}}</td>
+                    <td>{{this.totalPrice}}</td>
+                    <td class="text-danger">{{this.status}}</td>
+                    <td>
+                        <a href="/admin/sale/{{this._id}}">chi tiết</a>
+                    </td>
+                    <td>
+                        <a href="/admin/sale/deliver/{{this._id}}" class="btn btn-primary">Đang Giao</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+<br>
