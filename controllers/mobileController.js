@@ -250,3 +250,40 @@ exports.setStatus = function(req, res) {
         }
     });
 }
+
+
+exports.statistical_get = function(req, res) {
+    Mobile.find({})
+    .populate('Provider')
+    .exec(function(err, mobiles) {
+        if(err) {
+            return console.log(err);
+        }
+
+        var top10mobiles = [];
+
+        for(var i = 0; i < mobiles.length - 1; i++) {
+            for(var j = i; j < mobiles.length; j++) {
+                if(parseInt(mobiles[i].sold) < parseInt(mobiles[j].sold)) {
+                    var temp = mobiles[i];
+                    mobiles[i] = mobiles[j];
+                    mobiles[j] = temp;
+                }
+            }
+        }
+
+        for (var i = 0; i < 10; i++) {
+            if(parseInt(mobiles[i].sold) > 0) {
+                top10mobiles.push(mobiles[i]);
+            }
+        }
+
+        res.render('./admin/mobile/mobile', { 
+            login: true,
+            loginSuccess: true,
+            mobileActive: true, 
+            title: 'Top 10 Sản Phẩm Bán Chạy Nhất',
+            tables: top10mobiles
+         });
+    });
+}

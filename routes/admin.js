@@ -71,6 +71,8 @@ router.post('/mobile/:id/edit', isLoggedIn, mobileController.mobileEdit_Post);
 
 router.get('/mobile/:id/status', isLoggedIn, mobileController.setStatus);
 
+router.get('/statistical', isLoggedIn, mobileController.statistical_get);
+
 //import mobile
 router.get('/importMobile', isLoggedIn, importController.listImports);
 
